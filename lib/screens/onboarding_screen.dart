@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pokeglobal/screens/home_page.dart';
+import 'package:pokeglobal/core/constants/app_colors.dart';
+import 'package:pokeglobal/screens/main_shell.dart';
+import 'package:pokeglobal/widgets/primary_button.dart';
+
+/// Rutas de las imágenes PNG del onboarding (assets/images/).
+const String _onboarding1 = 'assets/images/onboarding_1.png';
+const String _onboarding2 = 'assets/images/onboarding_2.png';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -9,19 +15,18 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  static const _primaryBlue = Color(0xFF007BFF);
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
   final List<_OnboardingPage> _pages = const [
     _OnboardingPage(
-      imageAsset: 'assets/images/onboarding_1.png',
+      imageAsset: _onboarding1,
       title: 'Todos los Pokémon en un solo lugar',
       subtitle:
           'Accede a una amplia lista de Pokémon de todas las generaciones creadas por Nintendo',
     ),
     _OnboardingPage(
-      imageAsset: 'assets/images/onboarding_2.png',
+      imageAsset: _onboarding2,
       title: 'Mantén tu Pokédex actualizada',
       subtitle:
           'Regístrate y guarda tu perfil, Pokémon favoritos, configuraciones y mucho más en la aplicación',
@@ -40,9 +45,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const MyHomePage(title: 'PokeGlobal'),
-        ),
+        MaterialPageRoute(builder: (context) => const MainShell()),
       );
     }
   }
@@ -56,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -80,23 +83,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: _PageIndicator(
                 count: _pages.length,
                 currentIndex: _currentPage,
-                activeColor: _primaryBlue,
+                activeColor: AppColors.blue173,
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _nextOrFinish,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: const StadiumBorder(),
+              child: PrimaryButton(
+                onPressed: _nextOrFinish,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.2),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
                   ),
                   child: Text(
-                    _currentPage == _pages.length - 1 ? 'Empecemos' : 'Continuar',
+                    _currentPage == _pages.length - 1
+                        ? 'Empecemos'
+                        : 'Continuar',
+                    key: ValueKey(_currentPage),
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -144,12 +154,7 @@ class _OnboardingPageView extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Center(
-              child: Image.asset(
-                imageAsset,
-                fit: BoxFit.contain,
-              ),
-            ),
+            child: Center(child: Image.asset(imageAsset, fit: BoxFit.contain)),
           ),
           const SizedBox(height: 32),
           Text(
@@ -158,7 +163,7 @@ class _OnboardingPageView extends StatelessWidget {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: AppColors.textDark,
               height: 1.25,
             ),
           ),
@@ -168,7 +173,7 @@ class _OnboardingPageView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
-              color: Colors.grey.shade700,
+              color: AppColors.grey42,
               height: 1.4,
             ),
           ),
@@ -208,7 +213,7 @@ class _PageIndicator extends StatelessWidget {
           height: _dotHeight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_dotHeight / 2),
-            color: isActive ? activeColor : Colors.grey.shade300,
+            color: isActive ? activeColor : AppColors.greyE0,
           ),
         );
       }),
