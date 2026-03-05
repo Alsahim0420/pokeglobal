@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pokeglobal/core/services/svg_asset_service.dart';
 import 'package:pokeglobal/screens/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -9,10 +11,23 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
+    );
+
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -24,14 +39,29 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Center(
-        child: SvgPicture.asset(
-          'assets/svgs/Loader.svg',
-          width: 200,
-          height: 200,
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            return Transform.rotate(
+              angle: _animation.value * 2 * 3.14159,
+              child: child,
+            );
+          },
+          child: SvgPicture.asset(
+            SvgAssetService.loader,
+            width: 200,
+            height: 200,
+          ),
         ),
       ),
     );

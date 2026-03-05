@@ -3,11 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokeglobal/screens/splash_screen.dart';
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: PokeGlobalApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: PokeGlobalApp()));
 }
 
 class PokeGlobalApp extends StatelessWidget {
