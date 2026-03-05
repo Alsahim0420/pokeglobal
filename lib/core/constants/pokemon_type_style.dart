@@ -11,44 +11,45 @@ abstract final class PokemonTypeStyle {
   static const double cardBorderRadius = 20;
   static const double rightSectionBorderRadius = 18;
 
+  /// Colores fuertes de chips (paleta definida por diseño).
   static Color _chipColor(String label) {
     switch (label) {
-      case 'Normal':
-        return const Color(0xFFA8A878);
-      case 'Fuego':
-        return const Color(0xFFF08030);
       case 'Agua':
-        return const Color(0xFF6890F0);
-      case 'Eléctrico':
-        return const Color(0xFFF8D030);
-      case 'Planta':
-        return const Color(0xFF78C850);
-      case 'Hielo':
-        return const Color(0xFF98D8D8);
-      case 'Lucha':
-        return const Color(0xFFC03028);
-      case 'Veneno':
-        return const Color(0xFFA040A0);
-      case 'Tierra':
-        return const Color(0xFFE0C068);
-      case 'Volador':
-        return const Color(0xFFA890F0);
-      case 'Psíquico':
-        return const Color(0xFFF85888);
-      case 'Bicho':
-        return const Color(0xFFA8B820);
-      case 'Roca':
-        return const Color(0xFFB8A038);
-      case 'Fantasma':
-        return const Color(0xFF705898);
+        return const Color(0xFF2196F3);
       case 'Dragón':
-        return const Color(0xFF7038F8);
-      case 'Siniestro':
-        return const Color(0xFF705848);
-      case 'Acero':
-        return const Color(0xFFB8B8D0);
+        return const Color(0xFF00ACC1);
+      case 'Eléctrico':
+        return const Color(0xFFFDD835);
       case 'Hada':
-        return const Color(0xFFEE99AC);
+        return const Color(0xFFE91E63);
+      case 'Fantasma':
+        return const Color(0xFF8E24AA);
+      case 'Fuego':
+        return const Color(0xFFFF9800);
+      case 'Hielo':
+        return const Color(0xFF3D8BFF);
+      case 'Planta':
+        return const Color(0xFF8BC34A);
+      case 'Bicho':
+        return const Color(0xFF43A047);
+      case 'Lucha':
+        return const Color(0xFFE53935);
+      case 'Normal':
+        return const Color(0xFF546E7A);
+      case 'Siniestro':
+        return const Color(0xFF546E7A);
+      case 'Acero':
+        return const Color(0xFF546E7A);
+      case 'Roca':
+        return const Color(0xFF795548);
+      case 'Psíquico':
+        return const Color(0xFF673AB7);
+      case 'Tierra':
+        return const Color(0xFFFFB300);
+      case 'Veneno':
+        return const Color(0xFF9C27B0);
+      case 'Volador':
+        return const Color(0xFF00BCD4);
       default:
         return AppColors.grey9E;
     }
@@ -62,47 +63,52 @@ abstract final class PokemonTypeStyle {
     );
   }
 
+  /// Misma paleta de colores del type [50% Transparencia]
+
   static (List<Color> gradient, Color rightSection) _cardColors(String first) {
     switch (first) {
-      case 'Normal':
-        return ([const Color(0xFFA8A878), const Color(0xFF909090)], const Color(0xFF8A8A6A));
-      case 'Fuego':
-        return ([const Color(0xFFFFB74D), const Color(0xFFFFA726)], const Color(0xFFFB8C00));
       case 'Agua':
-        return ([const Color(0xFF64B5F6), const Color(0xFF42A5F5)], const Color(0xFF1E88E5));
-      case 'Eléctrico':
-        return ([const Color(0xFFFFF176), const Color(0xFFFFEE58)], const Color(0xFFFDD835));
-      case 'Planta':
-      case 'Veneno':
-        return ([const Color(0xFFAED581), const Color(0xFF8BC34A)], const Color(0xFF7CB342));
-      case 'Hielo':
-        return ([const Color(0xFFB3E5FC), const Color(0xFF81D4FA)], const Color(0xFF4FC3F7));
-      case 'Lucha':
-        return ([const Color(0xFFEF9A9A), const Color(0xFFE57373)], const Color(0xFFE53935));
-      case 'Tierra':
-        return ([const Color(0xFFD7CCC8), const Color(0xFFBCAAA4)], const Color(0xFF8D6E63));
-      case 'Volador':
-        return ([const Color(0xFFB39DDB), const Color(0xFF9575CD)], const Color(0xFF7E57C2));
-      case 'Psíquico':
-        return ([const Color(0xFFF48FB1), const Color(0xFFF06292)], const Color(0xFFEC407A));
-      case 'Bicho':
-        return ([const Color(0xFFCDDC39), const Color(0xFFC0CA33)], const Color(0xFFAFB42B));
-      case 'Roca':
-        return ([const Color(0xFFA1887F), const Color(0xFF8D6E63)], const Color(0xFF6D4C41));
-      case 'Fantasma':
-        return ([const Color(0xFF9575CD), const Color(0xFF7E57C2)], const Color(0xFF5E35B1));
+        return _same(const Color(0xFF2196F3).withOpacity(0.5));
       case 'Dragón':
-        return ([const Color(0xFF7E57C2), const Color(0xFF673AB7)], const Color(0xFF512DA8));
-      case 'Siniestro':
-        return ([const Color(0xFF5D4037), const Color(0xFF4E342E)], const Color(0xFF3E2723));
-      case 'Acero':
-        return ([const Color(0xFFB0BEC5), const Color(0xFF90A4AE)], const Color(0xFF78909C));
+        return _same(const Color(0xFF00ACC1).withOpacity(0.5));
+      case 'Eléctrico':
+        return _same(const Color(0xFFFDD835).withOpacity(0.5));
       case 'Hada':
-        return ([const Color(0xFFF8BBD9), const Color(0xFFF48FB1)], const Color(0xFFEC407A));
+        return _same(const Color(0xFFE91E63).withOpacity(0.5));
+      case 'Fantasma':
+        return _same(const Color(0xFF8E24AA).withOpacity(0.5));
+      case 'Fuego':
+        return _same(const Color(0xFFFF9800).withOpacity(0.5));
+      case 'Hielo':
+        return _same(const Color(0xFF3D8BFF).withOpacity(0.5));
+      case 'Planta':
+        return _same(const Color(0xFF8BC34A).withOpacity(0.5));
+      case 'Bicho':
+        return _same(const Color(0xFF43A047).withOpacity(0.5));
+      case 'Lucha':
+        return _same(const Color(0xFFE53935).withOpacity(0.5));
+      case 'Normal':
+        return _same(const Color(0xFF546E7A).withOpacity(0.5));
+      case 'Siniestro':
+        return _same(const Color(0xFF546E7A).withOpacity(0.5));
+      case 'Acero':
+        return _same(const Color(0xFF546E7A).withOpacity(0.5));
+      case 'Roca':
+        return _same(const Color(0xFF795548).withOpacity(0.5));
+      case 'Psíquico':
+        return _same(const Color(0xFF673AB7).withOpacity(0.5));
+      case 'Tierra':
+        return _same(const Color(0xFFFFB300).withOpacity(0.5));
+      case 'Veneno':
+        return _same(const Color(0xFF9C27B0).withOpacity(0.5));
+      case 'Volador':
+        return _same(const Color(0xFF00BCD4).withOpacity(0.5));
       default:
         return ([AppColors.greyE0, AppColors.greyD6], AppColors.grey9E);
     }
   }
+
+  static (List<Color>, Color) _same(Color color) => ([color, color], color);
 
   /// Gradiente de la card según el primer tipo.
   static LinearGradient cardGradient(List<String> typeLabels) {

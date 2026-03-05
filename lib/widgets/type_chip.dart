@@ -21,7 +21,7 @@ class TypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = 20 * scale;
+    final iconSize = 25 * scale;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
@@ -54,7 +54,7 @@ class TypeChip extends StatelessWidget {
             label,
             style: TextStyle(
               color: AppColors.white,
-              fontSize: 11 * scale,
+              fontSize: 13 * scale,
               fontWeight: FontWeight.w600,
             ),
           ),

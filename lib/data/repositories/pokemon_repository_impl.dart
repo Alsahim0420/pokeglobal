@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokeglobal/data/datasources/pokemon_remote_datasource.dart';
+import 'package:pokeglobal/data/mappers/pokemon_detail_mapper.dart';
 import 'package:pokeglobal/data/models/pokemon_list_response_dto.dart';
+import 'package:pokeglobal/data/models/pokemon_species_dto.dart';
 import 'package:pokeglobal/data/services/pokemon_list_enricher.dart';
 import 'package:pokeglobal/data/services/pokemon_list_enricher_provider.dart';
+import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
 import 'package:pokeglobal/models/pokemon_card_item.dart';
+import 'package:pokeglobal/models/pokemon_list_result.dart';
 
 /// URL base para sprites oficiales (PokeAPI).
 const String spriteBaseUrl =
@@ -19,13 +23,28 @@ class PokemonRepositoryImpl implements PokemonRepository {
   final PokemonListEnricher _enricher;
 
   @override
-  Future<List<PokemonCardItem>> getPokemonList({
+  Future<PokemonListResult> getPokemonList({
     int limit = 20,
     int offset = 0,
   }) async {
     final dto = await _remote.getPokemonList(limit: limit, offset: offset);
     final items = dto.results.map(_toCardItem).toList();
-    return _enricher.enrich(items);
+    final enriched = await _enricher.enrich(items);
+    return PokemonListResult(list: enriched, totalCount: dto.count);
+  }
+
+  @override
+  Future<PokemonDetail> getPokemonDetail(String name) async {
+    final dto = await _remote.getPokemonDetailByName(name);
+    PokemonSpeciesDto? species;
+    if (dto.speciesId > 0) {
+      try {
+        species = await _remote.getPokemonSpecies(dto.speciesId);
+      } catch (_) {
+        // Si falla species, continuamos sin descripción/género
+      }
+    }
+    return PokemonDetailMapper.toEntity(dto, species);
   }
 
   PokemonCardItem _toCardItem(PokemonListItemDto item) {

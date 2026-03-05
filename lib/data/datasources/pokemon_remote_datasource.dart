@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokeglobal/data/models/pokemon_detail_dto.dart';
 import 'package:pokeglobal/data/models/pokemon_list_response_dto.dart';
+import 'package:pokeglobal/data/models/pokemon_species_dto.dart';
 
 /// Base URL de PokeAPI v2.
 const String pokeApiBaseUrl = 'https://pokeapi.co/api/v2';
@@ -54,7 +55,19 @@ class PokemonRemoteDatasource {
 
   /// GET /pokemon/{id} — detalle (tipos, etc.).
   Future<PokemonDetailDto> getPokemonDetail(int id) async {
-    final response = await _dio.get<Map<String, dynamic>>('/pokemon/$id');
+    final data = await _getPokemonJson('/pokemon/$id');
+    return PokemonDetailDto.fromJson(data);
+  }
+
+  /// GET /pokemon/{name} — detalle por nombre (slug).
+  Future<PokemonDetailDto> getPokemonDetailByName(String name) async {
+    final slug = name.toLowerCase().trim();
+    final data = await _getPokemonJson('/pokemon/$slug');
+    return PokemonDetailDto.fromJson(data);
+  }
+
+  Future<Map<String, dynamic>> _getPokemonJson(String path) async {
+    final response = await _dio.get<Map<String, dynamic>>(path);
     final data = response.data;
     if (data == null) {
       throw DioException(
@@ -63,7 +76,21 @@ class PokemonRemoteDatasource {
         type: DioExceptionType.badResponse,
       );
     }
-    return PokemonDetailDto.fromJson(data);
+    return data;
+  }
+
+  /// GET /pokemon-species/{id} — descripción y género.
+  Future<PokemonSpeciesDto> getPokemonSpecies(int id) async {
+    final response = await _dio.get<Map<String, dynamic>>('/pokemon-species/$id');
+    final data = response.data;
+    if (data == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return PokemonSpeciesDto.fromJson(data);
   }
 }
 
