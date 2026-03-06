@@ -8,10 +8,13 @@ class GetPokemonListParams {
   const GetPokemonListParams({
     this.limit = 20,
     this.offset = 0,
+    this.enrich = true,
   });
 
   final int limit;
   final int offset;
+  /// Si false, no se enriquecen tipos (más rápido para búsqueda en toda la dex).
+  final bool enrich;
 }
 
 /// Caso de uso: obtiene la lista paginada de Pokémon desde PokeAPI.
@@ -30,6 +33,7 @@ class GetPokemonListUseCase
       final result = await _repository.getPokemonList(
         limit: params.limit,
         offset: params.offset,
+        enrich: params.enrich,
       );
       return UseCaseResponse.success(result);
     } catch (e) {

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_detail_use_case.dart';
+import 'package:pokeglobal/models/pokemon_card_item.dart';
 import 'package:pokeglobal/models/pokemon_list_result.dart';
 
 void main() {
@@ -75,7 +76,22 @@ class _FakeRepo implements PokemonRepository {
   Future<PokemonListResult> getPokemonList({
     int limit = 20,
     int offset = 0,
+    bool enrich = true,
   }) async {
     return const PokemonListResult(list: [], totalCount: 0);
+  }
+
+  @override
+  Future<List<PokemonCardItem>> enrichPokemonList(
+    List<PokemonCardItem> items,
+  ) async {
+    return items;
+  }
+
+  @override
+  Future<List<PokemonCardItem>> getPokemonListByTypes(
+    List<String> displayTypeLabels,
+  ) async {
+    return [];
   }
 }
