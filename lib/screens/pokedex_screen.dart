@@ -10,6 +10,7 @@ import 'package:pokeglobal/models/pokemon_card_item.dart';
 import 'package:pokeglobal/models/pokemon_list_result.dart';
 import 'package:pokeglobal/domain/usecases/enrich_pokemon_list_use_case.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_list_use_case.dart';
+import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_list_provider.dart';
 import 'package:pokeglobal/screens/pokemon_detail_screen.dart';
 import 'package:pokeglobal/widgets/filter_type_modal.dart';
@@ -34,7 +35,6 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
   bool _loading = true;
   bool _loadingMore = false;
   String? _errorMessage;
-  final Set<int> _favoriteIds = {};
 
   /// Lista completa para búsqueda global (precargada en segundo plano o al buscar).
   List<PokemonCardItem>? _searchFullList;
@@ -104,17 +104,13 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
         enrichResponse.when(
           success: (enrichedList) {
             setState(() {
-              _filteredByTypeList = enrichedList
-                  .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-                  .toList();
+              _filteredByTypeList = enrichedList;
               _loadingFilterByType = false;
             });
           },
           failure: (_, __) {
             setState(() {
-              _filteredByTypeList = list
-                  .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-                  .toList();
+              _filteredByTypeList = list;
               _loadingFilterByType = false;
             });
           },
@@ -162,9 +158,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     response.when(
       success: (result) {
         setState(() {
-          _searchFullList = result.list
-              .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-              .toList();
+          _searchFullList = result.list;
         });
       },
       failure: (_, __) {},
@@ -190,10 +184,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     }
     enrichResponse.when(
       success: (enriched) {
-        final withFavorites = enriched
-            .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-            .toList();
-        final byId = {for (var e in withFavorites) e.id: e};
+        final byId = {for (var e in enriched) e.id: e};
         final updated = _searchFullList!.map((p) => byId[p.id] ?? p).toList();
         setState(() {
           _searchFullList = updated;
@@ -231,9 +222,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
   /// Aplica el resultado de búsqueda global: enriquece los ítems que coinciden con la query
   /// y luego actualiza la lista para que las cards salgan ya con colores.
   Future<void> _applyFullSearchResult(PokemonListResult result) async {
-    var list = result.list
-        .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-        .toList();
+    var list = result.list;
 
     final query = _searchController.text.trim().toLowerCase();
     if (query.isNotEmpty) {
@@ -250,10 +239,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
         );
         enrichResponse.when(
           success: (enriched) {
-            final withFavorites = enriched
-                .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-                .toList();
-            final byId = {for (var e in withFavorites) e.id: e};
+            final byId = {for (var e in enriched) e.id: e};
             list = list.map((p) => byId[p.id] ?? p).toList();
           },
           failure: (_, __) {},
@@ -283,9 +269,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     response.when(
       success: (result) {
         setState(() {
-          _pokemonList = result.list
-              .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
-              .toList();
+          _pokemonList = result.list;
           _totalCount = result.totalCount;
           _loading = false;
           _errorMessage = null;
@@ -318,13 +302,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     response.when(
       success: (result) {
         setState(() {
-          final merged = [
-            ..._pokemonList,
-            ...result.list.map(
-              (p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)),
-            ),
-          ];
-          _pokemonList = merged;
+          _pokemonList = [..._pokemonList, ...result.list];
           _loadingMore = false;
         });
       },
@@ -334,23 +312,8 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     );
   }
 
-  void _toggleFavorite(int id) {
-    setState(() {
-      if (_favoriteIds.contains(id)) {
-        _favoriteIds.remove(id);
-      } else {
-        _favoriteIds.add(id);
-      }
-      final isFav = _favoriteIds.contains(id);
-      _pokemonList = _pokemonList
-          .map((p) => p.id == id ? p.copyWith(isFavorite: isFav) : p)
-          .toList();
-      if (_searchFullList != null) {
-        _searchFullList = _searchFullList!
-            .map((p) => p.id == id ? p.copyWith(isFavorite: isFav) : p)
-            .toList();
-      }
-    });
+  void _toggleFavorite(int id, String nameSlug) {
+    ref.read(favoriteIdsProvider.notifier).toggle(id, nameSlug: nameSlug);
   }
 
   @override
@@ -420,6 +383,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
       );
     }
 
+    final favoriteIds = ref.watch(favoriteIdsProvider);
     final displayed = _displayedList;
     final isSearching = _searchController.text.trim().isNotEmpty;
     final showSearching =
@@ -489,8 +453,8 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
                     typeChips: _toTypeChipData(item.types),
                     spriteUrl: item.spriteUrl,
                     nameSlug: item.nameSlug,
-                    isFavorite: item.isFavorite,
-                    onFavoriteTap: () => _toggleFavorite(item.id),
+                    isFavorite: favoriteIds.contains(item.id),
+                    onFavoriteTap: () => _toggleFavorite(item.id, item.nameSlug),
                     gradient: PokemonTypeStyle.cardGradient(
                       item.types.map((t) => t.label).toList(),
                     ),
