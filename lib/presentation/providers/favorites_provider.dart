@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pokeglobal/core/storage/key_value_store.dart';
 import 'package:pokeglobal/data/local/favorites_local_datasource.dart';
+import 'package:pokeglobal/data/local/hive_box_adapter.dart';
 
 const String _favoritesBoxName = 'favorites';
 
@@ -11,13 +13,13 @@ Future<void> initFavoritesStorage() async {
   await Hive.openBox<dynamic>('settings');
 }
 
-/// Caja de favoritos (debe estar abierta en main con [initFavoritesStorage]).
-Box<dynamic> get favoritesBox => Hive.box<dynamic>(_favoritesBoxName);
-
-final favoritesBoxProvider = Provider<Box<dynamic>>((ref) => favoritesBox);
+/// Store de favoritos (en producción usa Hive). Override en tests con [InMemoryKeyValueStore].
+final favoritesStoreProvider = Provider<KeyValueStore>((ref) {
+  return HiveBoxAdapter(Hive.box<dynamic>(_favoritesBoxName));
+});
 
 final favoritesDatasourceProvider = Provider<FavoritesLocalDatasource>((ref) {
-  return FavoritesLocalDatasource(ref.watch(favoritesBoxProvider));
+  return FavoritesLocalDatasource(ref.watch(favoritesStoreProvider));
 });
 
 /// Estado de favoritos: conjunto de IDs. Persistido en Hive.

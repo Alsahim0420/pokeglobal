@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pokeglobal/core/storage/key_value_store.dart';
+import 'package:pokeglobal/data/local/hive_box_adapter.dart';
 import 'package:pokeglobal/data/local/settings_local_datasource.dart';
 
 const String _settingsBoxName = 'settings';
 
-/// Abrir la caja de configuración. Llamar desde main() junto con favoritos.
-Future<void> initSettingsStorage() async {
-  await Hive.openBox<dynamic>(_settingsBoxName);
-}
-
-Box<dynamic> get _settingsBox => Hive.box<dynamic>(_settingsBoxName);
+/// Store de configuración (en producción usa Hive). Override en tests con [InMemoryKeyValueStore].
+final settingsStoreProvider = Provider<KeyValueStore>((ref) {
+  return HiveBoxAdapter(Hive.box<dynamic>(_settingsBoxName));
+});
 
 final settingsDatasourceProvider = Provider<SettingsLocalDatasource>((ref) {
-  return SettingsLocalDatasource(_settingsBox);
+  return SettingsLocalDatasource(ref.watch(settingsStoreProvider));
 });
 
 /// Modo de tema: light, dark, system.
