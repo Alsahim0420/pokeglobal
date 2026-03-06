@@ -17,20 +17,21 @@ class DetailStatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: AppColors.grey75),
+            Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.grey75,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -39,15 +40,15 @@ class DetailStatRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.greyEE,
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.textDark,
+              color: colorScheme.onSurface,
             ),
           ),
         ),

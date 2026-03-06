@@ -33,15 +33,14 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    const selectedColor = AppColors.blue173;
-    const unselectedColor = AppColors.grey9E;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(top: 10),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: colorScheme.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
@@ -63,10 +62,10 @@ class _MainShellState extends State<MainShell> {
             currentIndex: _currentIndex,
             onTap: (index) => setState(() => _currentIndex = index),
             type: BottomNavigationBarType.fixed,
-            backgroundColor: AppColors.white,
+            backgroundColor: colorScheme.surface,
             elevation: 10,
-            selectedItemColor: selectedColor,
-            unselectedItemColor: unselectedColor,
+            selectedItemColor: colorScheme.primary,
+            unselectedItemColor: colorScheme.onSurfaceVariant,
             selectedLabelStyle: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -81,8 +80,8 @@ class _MainShellState extends State<MainShell> {
                 icon: _NavIcon(
                   assetPath: SvgAssetService.navIcons[index],
                   color: _currentIndex == index
-                      ? selectedColor
-                      : unselectedColor,
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
                 label: _navLabels[index],
               ),

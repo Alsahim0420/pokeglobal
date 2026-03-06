@@ -52,11 +52,12 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
   Widget build(BuildContext context) {
     final types = PokemonTypeLabelMapper.allDisplayLabels;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.8;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: maxHeight,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: EdgeInsets.only(
         left: 24,
@@ -74,7 +75,7 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
             width: double.infinity,
             child: GestureDetector(
               onTap: () => Navigator.of(context).pop(),
-              child: Icon(Icons.close, color: AppColors.grey42),
+              child: Icon(Icons.close, color: colorScheme.onSurfaceVariant),
             ),
           ),
           Container(
@@ -85,7 +86,7 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
               'Filtra por tus preferencias',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
+                color: colorScheme.onSurface,
               ),
             ),
           ),
@@ -95,7 +96,7 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
             'Tipo',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
@@ -120,8 +121,8 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
                                   ? Icons.check_box
                                   : Icons.check_box_outline_blank,
                               color: isSelected
-                                  ? AppColors.primaryBlue
-                                  : AppColors.grey9E,
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurfaceVariant,
                               size: 24,
                             ),
                           ],
@@ -142,8 +143,8 @@ class _FilterTypeModalContentState extends State<_FilterTypeModalContent> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.greyF2,
-              foregroundColor: AppColors.grey42,
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              foregroundColor: colorScheme.onSurfaceVariant,
             ),
             child: const Text('Cancelar'),
           ),

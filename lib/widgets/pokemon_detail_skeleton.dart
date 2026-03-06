@@ -11,6 +11,7 @@ class PokemonDetailSkeleton extends StatefulWidget {
     this.headerColor,
     this.pokemonName,
     this.spriteUrl,
+    this.heroTagPrefix,
   });
 
   final VoidCallback? onBack;
@@ -23,6 +24,9 @@ class PokemonDetailSkeleton extends StatefulWidget {
 
   /// URL del sprite para mostrar la imagen de red mientras carga.
   final String? spriteUrl;
+
+  /// Prefijo para Hero tags (ej. 'fav-' desde Favoritos).
+  final String? heroTagPrefix;
 
   @override
   State<PokemonDetailSkeleton> createState() => _PokemonDetailSkeletonState();
@@ -55,8 +59,9 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
   @override
   Widget build(BuildContext context) {
     final headerColor = widget.headerColor ?? AppColors.green8B;
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -66,7 +71,7 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
                 const SizedBox(height: 260),
                 AnimatedBuilder(
                   animation: _animation,
-                  builder: (context, _) => _buildContentSkeleton(),
+                  builder: (context, _) => _buildContentSkeleton(context),
                 ),
               ],
             ),
@@ -96,7 +101,7 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
             Positioned.fill(
               child: Center(
                 child: Hero(
-                  tag: 'pokemon-type-icon-${widget.pokemonName}',
+                  tag: '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${widget.pokemonName}',
                   child: Material(
                     color: Colors.transparent,
                     child: SizedBox(width: 140, height: 140),
@@ -117,7 +122,7 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
               top: 50,
               right: 16,
               child: Hero(
-                tag: 'pokemon-favorite-${widget.pokemonName}',
+                tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.pokemonName}',
                 child: Material(
                   color: Colors.transparent,
                   child: IconButton(
@@ -150,7 +155,7 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
     const double size = 145;
     final url = widget.spriteUrl;
     final tag = widget.pokemonName != null && widget.pokemonName!.isNotEmpty
-        ? 'pokemon-image-${widget.pokemonName}'
+        ? '${widget.heroTagPrefix ?? ""}pokemon-image-${widget.pokemonName}'
         : null;
     if (url == null || url.isEmpty || tag == null) {
       return const SizedBox.shrink();
@@ -176,32 +181,34 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
     );
   }
 
-  Widget _buildContentSkeleton() {
+  Widget _buildContentSkeleton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          _ShimmerBox(width: 180, height: 28, borderRadius: 8),
+          _ShimmerBox(width: 180, height: 28, borderRadius: 8, isDark: isDark),
           const SizedBox(height: 8),
-          _ShimmerBox(width: 70, height: 16, borderRadius: 6),
+          _ShimmerBox(width: 70, height: 16, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 14),
           Row(
             children: [
-              _ShimmerBox(width: 64, height: 24, borderRadius: 20),
+              _ShimmerBox(width: 64, height: 24, borderRadius: 20, isDark: isDark),
               const SizedBox(width: 8),
-              _ShimmerBox(width: 64, height: 24, borderRadius: 20),
+              _ShimmerBox(width: 64, height: 24, borderRadius: 20, isDark: isDark),
             ],
           ),
           const SizedBox(height: 16),
-          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6),
+          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 8),
-          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6),
+          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 8),
-          _ShimmerBox(width: 220, height: 14, borderRadius: 6),
+          _ShimmerBox(width: 220, height: 14, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 22),
-          Divider(color: AppColors.greyE0),
+          Divider(color: colorScheme.outline),
           const SizedBox(height: 22),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,12 +220,14 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
                       width: double.infinity,
                       height: 56,
                       borderRadius: 16,
+                      isDark: isDark,
                     ),
                     const SizedBox(height: 20),
                     _ShimmerBox(
                       width: double.infinity,
                       height: 56,
                       borderRadius: 16,
+                      isDark: isDark,
                     ),
                   ],
                 ),
@@ -231,12 +240,14 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
                       width: double.infinity,
                       height: 56,
                       borderRadius: 16,
+                      isDark: isDark,
                     ),
                     const SizedBox(height: 20),
                     _ShimmerBox(
                       width: double.infinity,
                       height: 56,
                       borderRadius: 16,
+                      isDark: isDark,
                     ),
                   ],
                 ),
@@ -244,26 +255,26 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
             ],
           ),
           const SizedBox(height: 20),
-          _ShimmerBox(width: 80, height: 12, borderRadius: 4),
+          _ShimmerBox(width: 80, height: 12, borderRadius: 4, isDark: isDark),
           const SizedBox(height: 12),
-          _ShimmerBox(width: double.infinity, height: 10, borderRadius: 6),
+          _ShimmerBox(width: double.infinity, height: 10, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _ShimmerBox(width: 70, height: 14, borderRadius: 4),
-              _ShimmerBox(width: 70, height: 14, borderRadius: 4),
+              _ShimmerBox(width: 70, height: 14, borderRadius: 4, isDark: isDark),
+              _ShimmerBox(width: 70, height: 14, borderRadius: 4, isDark: isDark),
             ],
           ),
           const SizedBox(height: 24),
-          _ShimmerBox(width: 100, height: 16, borderRadius: 4),
+          _ShimmerBox(width: 100, height: 16, borderRadius: 4, isDark: isDark),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: List.generate(
               4,
-              (_) => _ShimmerBox(width: 72, height: 28, borderRadius: 20),
+              (_) => _ShimmerBox(width: 72, height: 28, borderRadius: 20, isDark: isDark),
             ),
           ),
           const SizedBox(height: 32),
@@ -278,19 +289,24 @@ class _ShimmerBox extends StatelessWidget {
     required this.width,
     required this.height,
     this.borderRadius = 6,
+    required this.isDark,
   });
 
   final double width;
   final double height;
   final double borderRadius;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final color = isDark
+        ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+        : AppColors.skeletonDark;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.skeletonDark,
+        color: color,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

@@ -43,6 +43,13 @@ class _PokemonCardSkeletonState extends State<PokemonCardSkeleton>
     final borderRadius =
         PokemonTypeStyle.cardBorderRadius * scale;
     final rightRadius = PokemonTypeStyle.rightSectionBorderRadius * scale;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final skeletonBase = isDark
+        ? Theme.of(context).colorScheme.surfaceContainerHighest
+        : AppColors.skeletonLight;
+    final shimmerColor = isDark
+        ? AppColors.white.withValues(alpha: 0.08)
+        : AppColors.white.withValues(alpha: 0.35);
 
     return AnimatedBuilder(
       animation: _animation,
@@ -51,20 +58,22 @@ class _PokemonCardSkeletonState extends State<PokemonCardSkeleton>
           height: height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
-            color: AppColors.skeletonLight,
+            color: skeletonBase,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius),
             child: Stack(
               children: [
-                // Layout del skeleton
                 Row(
                   children: [
-                    _LeftSkeleton(scale: scale),
-                    _RightSkeleton(scale: scale, rightRadius: rightRadius),
+                    _LeftSkeleton(scale: scale, isDark: isDark),
+                    _RightSkeleton(
+                      scale: scale,
+                      rightRadius: rightRadius,
+                      isDark: isDark,
+                    ),
                   ],
                 ),
-                // Shimmer que recorre la card
                 Positioned.fill(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -80,7 +89,7 @@ class _PokemonCardSkeletonState extends State<PokemonCardSkeleton>
                               end: Alignment.centerRight,
                               colors: [
                                 Colors.transparent,
-                                AppColors.white.withValues(alpha: 0.35),
+                                shimmerColor,
                                 Colors.transparent,
                               ],
                             ),
@@ -100,9 +109,10 @@ class _PokemonCardSkeletonState extends State<PokemonCardSkeleton>
 }
 
 class _LeftSkeleton extends StatelessWidget {
-  const _LeftSkeleton({required this.scale});
+  const _LeftSkeleton({required this.scale, required this.isDark});
 
   final double scale;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -113,16 +123,16 @@ class _LeftSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ShimmerBox(width: 48 * scale, height: 10 * scale),
+            _ShimmerBox(width: 48 * scale, height: 10 * scale, isDark: isDark),
             SizedBox(height: 6 * scale),
-            _ShimmerBox(width: 100 * scale, height: 16 * scale),
+            _ShimmerBox(width: 100 * scale, height: 16 * scale, isDark: isDark),
             const Spacer(),
             Wrap(
               spacing: 6 * scale,
               runSpacing: 4 * scale,
               children: [
-                _ShimmerBox(width: 52 * scale, height: 20 * scale, borderRadius: 20),
-                _ShimmerBox(width: 52 * scale, height: 20 * scale, borderRadius: 20),
+                _ShimmerBox(width: 52 * scale, height: 20 * scale, borderRadius: 20, isDark: isDark),
+                _ShimmerBox(width: 52 * scale, height: 20 * scale, borderRadius: 20, isDark: isDark),
               ],
             ),
           ],
@@ -133,15 +143,23 @@ class _LeftSkeleton extends StatelessWidget {
 }
 
 class _RightSkeleton extends StatelessWidget {
-  const _RightSkeleton({required this.scale, required this.rightRadius});
+  const _RightSkeleton({
+    required this.scale,
+    required this.rightRadius,
+    required this.isDark,
+  });
 
   final double scale;
   final double rightRadius;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final padding = 6 * scale;
     final circleSize = 72 * scale;
+    final colorScheme = Theme.of(context).colorScheme;
+    final midColor = isDark ? colorScheme.outline.withValues(alpha: 0.4) : AppColors.skeletonMid;
+    final circleColor = isDark ? colorScheme.outline.withValues(alpha: 0.6) : AppColors.skeletonCircle;
 
     return Expanded(
       flex: 2,
@@ -150,13 +168,13 @@ class _RightSkeleton extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(rightRadius),
           child: Container(
-            color: AppColors.skeletonMid,
+            color: midColor,
             child: Center(
               child: Container(
                 width: circleSize,
                 height: circleSize,
                 decoration: BoxDecoration(
-                  color: AppColors.skeletonCircle,
+                  color: circleColor,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -173,19 +191,24 @@ class _ShimmerBox extends StatelessWidget {
     required this.width,
     required this.height,
     this.borderRadius = 6,
+    required this.isDark,
   });
 
   final double width;
   final double height;
   final double borderRadius;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final color = isDark
+        ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+        : AppColors.skeletonDark;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.skeletonDark,
+        color: color,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
