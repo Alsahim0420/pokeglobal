@@ -4,15 +4,17 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
+import 'package:pokeglobal/core/l10n/type_label_helper.dart';
 import 'package:pokeglobal/core/utils/responsive.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_detail_use_case.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
 import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_detail_provider.dart';
-import 'package:pokeglobal/screens/pokemon_detail_screen.dart';
-import 'package:pokeglobal/widgets/pokemon_card.dart';
-import 'package:pokeglobal/widgets/pokemon_card_skeleton.dart';
+import 'package:pokeglobal/presentation/screens/pokemon_detail_screen.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_card.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_card_skeleton.dart';
 
 class FavoritosScreen extends ConsumerStatefulWidget {
   const FavoritosScreen({super.key});
@@ -85,11 +87,14 @@ class _FavoritosScreenState extends ConsumerState<FavoritosScreen> {
     return PokemonTypeStyle.chipStyle(typeLabels.first).color;
   }
 
-  static List<TypeChipData> _toTypeChipData(List<PokemonTypeTag> types) {
+  static List<TypeChipData> _toTypeChipData(
+    BuildContext context,
+    List<PokemonTypeTag> types,
+  ) {
     return types.map((t) {
       final style = PokemonTypeStyle.chipStyle(t.label);
       return TypeChipData(
-        label: t.label,
+        label: displayLabelInLocale(context, t.label),
         color: style.color,
         iconPath: style.iconPath,
       );
@@ -113,7 +118,7 @@ class _FavoritosScreenState extends ConsumerState<FavoritosScreen> {
       backgroundColor: colorScheme.surface,
       appBar: hasData
           ? AppBar(
-              title: const Text('Favoritos'),
+              title: Text(AppLocalizations.of(context)!.favoritesTitle),
               backgroundColor: colorScheme.surface,
               foregroundColor: colorScheme.onSurfaceVariant,
               elevation: 0,
@@ -168,7 +173,7 @@ class _FavoritosScreenState extends ConsumerState<FavoritosScreen> {
             ),
             const SizedBox(height: 32),
             Text(
-              'No has marcado ningún \nPokémon como favorito',
+              AppLocalizations.of(context)!.favoritesEmptyTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
@@ -178,7 +183,7 @@ class _FavoritosScreenState extends ConsumerState<FavoritosScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Haz clic en el ícono de corazón de tus\nPokémon favoritos y aparecerán aquí.',
+              AppLocalizations.of(context)!.favoritesEmptySubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -289,7 +294,7 @@ class _FavoritosScreenState extends ConsumerState<FavoritosScreen> {
                         child: PokemonCard(
                           number: item.number,
                           name: item.name,
-                          typeChips: _toTypeChipData(item.types),
+                          typeChips: _toTypeChipData(context, item.types),
                           spriteUrl: item.spriteUrl,
                           nameSlug: item.nameSlug,
                           heroTagPrefix: 'fav-',

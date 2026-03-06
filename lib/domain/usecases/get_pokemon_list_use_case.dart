@@ -1,7 +1,7 @@
 import 'package:pokeglobal/core/use_case/use_case.dart';
 import 'package:pokeglobal/core/use_case/use_case_response.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
-import 'package:pokeglobal/models/pokemon_list_result.dart';
+import 'package:pokeglobal/data/models/pokemon_list_result.dart';
 
 /// Parámetros para obtener la lista paginada de Pokémon.
 class GetPokemonListParams {
@@ -13,6 +13,7 @@ class GetPokemonListParams {
 
   final int limit;
   final int offset;
+
   /// Si false, no se enriquecen tipos (más rápido para búsqueda en toda la dex).
   final bool enrich;
 }
@@ -37,10 +38,7 @@ class GetPokemonListUseCase
       );
       return UseCaseResponse.success(result);
     } catch (e) {
-      return UseCaseResponse.failure(
-        e.toString(),
-        error: e,
-      );
+      return UseCaseResponse.failure(e.toString(), error: e);
     }
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
 import 'package:pokeglobal/core/utils/responsive.dart';
-import 'package:pokeglobal/widgets/type_chip.dart';
+import 'package:pokeglobal/presentation/widgets/type_chip.dart';
 
 /// DTO de presentación para los chips de tipo (evita acoplar dominio al widget).
 class TypeChipData {
@@ -59,18 +59,25 @@ class PokemonCard extends StatelessWidget {
     final height = Responsive.cardHeight(width);
     final scale = Responsive.cardScale(width);
 
+    final borderRadius =
+        BorderRadius.circular(PokemonTypeStyle.cardBorderRadius * scale);
     return GestureDetector(
       onTap: onTap,
       onDoubleTap: onFavoriteTap,
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            PokemonTypeStyle.cardBorderRadius * scale,
-          ),
-          gradient: gradient,
+          borderRadius: borderRadius,
+          color: AppColors.white,
         ),
-        child: Row(
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              gradient: gradient,
+            ),
+            child: Row(
           children: [
             _LeftContent(
               number: number,
@@ -91,6 +98,8 @@ class PokemonCard extends StatelessWidget {
                   : PokemonTypeStyle.chipStyle('Normal').iconPath,
             ),
           ],
+            ),
+          ),
         ),
       ),
     );
@@ -201,7 +210,8 @@ class _RightSection extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Hero(
-                  tag: '${heroTagPrefix ?? ""}pokemon-type-icon-${nameSlug ?? ""}',
+                  tag:
+                      '${heroTagPrefix ?? ""}pokemon-type-icon-${nameSlug ?? ""}',
                   child: Material(
                     color: Colors.transparent,
                     child: ShaderMask(
@@ -294,14 +304,15 @@ class _FavoriteButtonState extends State<_FavoriteButton>
       vsync: this,
       duration: _heartbeatDuration,
     );
-    _heartbeatScale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 15),
-      TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 10),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 15),
-      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 15),
-    ]).animate(
-      CurvedAnimation(parent: _heartbeatController, curve: Curves.easeOut),
-    );
+    _heartbeatScale =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 15),
+          TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 10),
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 15),
+          TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 15),
+        ]).animate(
+          CurvedAnimation(parent: _heartbeatController, curve: Curves.easeOut),
+        );
   }
 
   @override
@@ -324,7 +335,8 @@ class _FavoriteButtonState extends State<_FavoriteButton>
     final iconSize = 16 * widget.scale;
 
     return Hero(
-      tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.nameSlug ?? ""}',
+      tag:
+          '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.nameSlug ?? ""}',
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -344,10 +356,9 @@ class _FavoriteButtonState extends State<_FavoriteButton>
             child: AnimatedBuilder(
               animation: _heartbeatScale,
               builder: (context, child) {
-                final s =
-                    widget.isFavorite && _heartbeatController.isAnimating
-                        ? _heartbeatScale.value
-                        : 1.0;
+                final s = widget.isFavorite && _heartbeatController.isAnimating
+                    ? _heartbeatScale.value
+                    : 1.0;
                 return Transform.scale(
                   scale: s,
                   alignment: Alignment.center,
@@ -359,8 +370,7 @@ class _FavoriteButtonState extends State<_FavoriteButton>
                 child: Icon(
                   key: ValueKey<bool>(widget.isFavorite),
                   widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color:
-                      widget.isFavorite ? AppColors.redE5 : AppColors.white,
+                  color: widget.isFavorite ? AppColors.redE5 : AppColors.white,
                   size: iconSize,
                 ),
               ),

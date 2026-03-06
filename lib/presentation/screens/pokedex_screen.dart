@@ -5,18 +5,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
+import 'package:pokeglobal/core/l10n/type_label_helper.dart';
 import 'package:pokeglobal/core/utils/responsive.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
-import 'package:pokeglobal/models/pokemon_list_result.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_list_result.dart';
 import 'package:pokeglobal/domain/usecases/enrich_pokemon_list_use_case.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_list_use_case.dart';
 import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_list_provider.dart';
-import 'package:pokeglobal/screens/pokemon_detail_screen.dart';
-import 'package:pokeglobal/widgets/filter_type_modal.dart';
-import 'package:pokeglobal/widgets/primary_button.dart';
-import 'package:pokeglobal/widgets/pokemon_card.dart';
-import 'package:pokeglobal/widgets/pokemon_card_skeleton.dart';
+import 'package:pokeglobal/presentation/screens/pokemon_detail_screen.dart';
+import 'package:pokeglobal/presentation/widgets/filter_type_modal.dart';
+import 'package:pokeglobal/presentation/widgets/primary_button.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_card.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_card_skeleton.dart';
 
 class PokedexScreen extends ConsumerStatefulWidget {
   const PokedexScreen({super.key});
@@ -83,7 +85,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
   Future<void> _openFilterByTypeModal(BuildContext context) async {
     final selected = await showFilterTypeModal(
       context,
-      initialSelected: _selectedFilterTypes,
+      initialSelectedApiNames: _selectedFilterTypes,
     );
     if (selected == null || !mounted) return;
     _selectedFilterTypes = selected;
@@ -99,7 +101,9 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
       success: (list) async {
         // Enriquecer con tipos reales (API) para mostrar todos los tipos y color del principal
         final enrichUseCase = ref.read(enrichPokemonListUseCaseProvider);
-        final enrichResponse = await enrichUseCase(EnrichPokemonListParams(items: list));
+        final enrichResponse = await enrichUseCase(
+          EnrichPokemonListParams(items: list),
+        );
         if (!mounted) return;
         enrichResponse.when(
           success: (enrichedList) {
@@ -357,7 +361,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
       return KeyedSubtree(
         key: const ValueKey('filter_loading'),
         child: _BouncingPokeballLoading(
-          message: 'Buscando Pokémon por tipo...',
+          message: AppLocalizations.of(context)!.pokedexFilterByType,
         ),
       );
     }
@@ -395,11 +399,12 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
         child: Center(
           child: showSearching
               ? _BouncingPokeballLoading(
-                  message:
-                      'Buscando en tu pokedex... ¡No te desesperes pronto veras tus pokemones!',
+                  message: AppLocalizations.of(context)!.pokedexSearching,
                 )
               : Text(
-                  isSearching ? 'No hay resultados' : 'No hay Pokémon',
+                  isSearching
+                      ? AppLocalizations.of(context)!.pokedexNoResults
+                      : AppLocalizations.of(context)!.pokedexNoPokemon,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.grey75, fontSize: 16),
                 ),
@@ -450,11 +455,12 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
                   child: PokemonCard(
                     number: item.number,
                     name: item.name,
-                    typeChips: _toTypeChipData(item.types),
+                    typeChips: _toTypeChipData(context, item.types),
                     spriteUrl: item.spriteUrl,
                     nameSlug: item.nameSlug,
                     isFavorite: favoriteIds.contains(item.id),
-                    onFavoriteTap: () => _toggleFavorite(item.id, item.nameSlug),
+                    onFavoriteTap: () =>
+                        _toggleFavorite(item.id, item.nameSlug),
                     gradient: PokemonTypeStyle.cardGradient(
                       item.types.map((t) => t.label).toList(),
                     ),
@@ -501,16 +507,17 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     int resultCount,
     double horizontalPadding,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 4),
       child: Row(
         children: [
           Text(
-            'Se han encontrado ',
+            l10n.pokedexResultsFound,
             style: TextStyle(color: AppColors.grey75, fontSize: 14),
           ),
           Text(
-            '$resultCount resultados',
+            l10n.pokedexResultsCount(resultCount),
             style: TextStyle(
               color: AppColors.grey42,
               fontSize: 14,
@@ -525,7 +532,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
               setState(() {});
             },
             child: Text(
-              'Borrar filtro',
+              l10n.pokedexClearFilter,
               style: TextStyle(
                 color: AppColors.primaryBlue,
                 fontSize: 14,
@@ -544,11 +551,14 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     return PokemonTypeStyle.chipStyle(typeLabels.first).color;
   }
 
-  static List<TypeChipData> _toTypeChipData(List<PokemonTypeTag> types) {
+  static List<TypeChipData> _toTypeChipData(
+    BuildContext context,
+    List<PokemonTypeTag> types,
+  ) {
     return types.map((t) {
       final style = PokemonTypeStyle.chipStyle(t.label);
       return TypeChipData(
-        label: t.label,
+        label: displayLabelInLocale(context, t.label),
         color: style.color,
         iconPath: style.iconPath,
       );
@@ -581,7 +591,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Procurar Pókemon...',
+                  hintText: AppLocalizations.of(context)!.pokedexSearchHint,
                   hintStyle: TextStyle(color: AppColors.grey9E),
                   prefixIcon: Icon(
                     Icons.search_rounded,
@@ -683,7 +693,10 @@ class _BouncingPokeballLoadingState extends State<_BouncingPokeballLoading>
             Text(
               widget.message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.grey75, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 16,
+              ),
             ),
           ],
         );
@@ -721,24 +734,26 @@ class _PokedexErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Algo salió mal...',
+              AppLocalizations.of(context)!.errorTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey33,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'No pudimos cargar la información en este momento. '
-              'Verifica tu conexión o intenta nuevamente más tarde.',
+              AppLocalizations.of(context)!.errorMessage,
               textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey42),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 32),
-            PrimaryButton(onPressed: onRetry, label: 'Reintentar'),
+            PrimaryButton(
+              onPressed: onRetry,
+              label: AppLocalizations.of(context)!.detailRetry,
+            ),
           ],
         ),
       ),

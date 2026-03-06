@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
 import 'package:pokeglobal/presentation/providers/settings_provider.dart';
 
 class PerfilScreen extends ConsumerWidget {
@@ -15,7 +16,7 @@ class PerfilScreen extends ConsumerWidget {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Perfil',
+          AppLocalizations.of(context)!.profileTitle,
           style: TextStyle(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
@@ -30,7 +31,8 @@ class PerfilScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           children: [
-            _SectionTitle(title: 'Apariencia'),
+            _SectionTitle(
+                title: AppLocalizations.of(context)!.profileAppearance),
             const SizedBox(height: 4),
             _ThemeSegment(
               value: themeMode,
@@ -38,24 +40,24 @@ class PerfilScreen extends ConsumerWidget {
                   ref.read(themeModeProvider.notifier).setThemeMode(mode),
             ),
             const SizedBox(height: 24),
-            _SectionTitle(title: 'Idioma'),
+            _SectionTitle(title: AppLocalizations.of(context)!.profileLanguage),
             const SizedBox(height: 4),
             _LanguageTile(
-              label: 'Español',
+              label: AppLocalizations.of(context)!.profileLanguageSpanish,
               locale: const Locale('es'),
               current: locale,
               onTap: () =>
                   ref.read(localeProvider.notifier).setLocale(const Locale('es')),
             ),
             _LanguageTile(
-              label: 'English',
+              label: AppLocalizations.of(context)!.profileLanguageEnglish,
               locale: const Locale('en'),
               current: locale,
               onTap: () =>
                   ref.read(localeProvider.notifier).setLocale(const Locale('en')),
             ),
             _LanguageTile(
-              label: 'Sistema',
+              label: AppLocalizations.of(context)!.profileLanguageSystem,
               locale: null,
               current: locale,
               onTap: () => ref.read(localeProvider.notifier).setLocale(null),
@@ -206,19 +208,19 @@ class _ThemeSegmentState extends State<_ThemeSegment>
               Row(
                 children: [
                   _SegmentChip(
-                    label: 'Claro',
+                    label: AppLocalizations.of(context)!.profileThemeLight,
                     icon: Icons.light_mode_outlined,
                     selected: value == ThemeMode.light,
                     onTap: () => onChanged(ThemeMode.light),
                   ),
                   _SegmentChip(
-                    label: 'Oscuro',
+                    label: AppLocalizations.of(context)!.profileThemeDark,
                     icon: Icons.dark_mode_outlined,
                     selected: value == ThemeMode.dark,
                     onTap: () => onChanged(ThemeMode.dark),
                   ),
                   _SegmentChip(
-                    label: 'Sistema',
+                    label: AppLocalizations.of(context)!.profileThemeSystem,
                     icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
                     selected: value == ThemeMode.system,
                     onTap: () => onChanged(ThemeMode.system),

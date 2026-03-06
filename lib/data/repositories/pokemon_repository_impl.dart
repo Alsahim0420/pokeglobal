@@ -6,10 +6,11 @@ import 'package:pokeglobal/data/models/pokemon_list_response_dto.dart';
 import 'package:pokeglobal/data/models/pokemon_species_dto.dart';
 import 'package:pokeglobal/data/services/pokemon_list_enricher.dart';
 import 'package:pokeglobal/data/services/pokemon_list_enricher_provider.dart';
+
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
-import 'package:pokeglobal/models/pokemon_list_result.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_list_result.dart';
 
 /// URL base para sprites oficiales (PokeAPI).
 const String spriteBaseUrl =
@@ -43,22 +44,19 @@ class PokemonRepositoryImpl implements PokemonRepository {
 
   @override
   Future<List<PokemonCardItem>> getPokemonListByTypes(
-      List<String> displayTypeLabels) async {
-    if (displayTypeLabels.isEmpty) return [];
-    final apiNames = <String>[];
-    for (final label in displayTypeLabels) {
-      final api = PokemonTypeLabelMapper.toApiName(label);
-      if (api != null) apiNames.add(api);
-    }
-    if (apiNames.isEmpty) return [];
+      List<String> typeApiNames) async {
+    if (typeApiNames.isEmpty) return [];
     final idToName = <int, String>{};
-    for (final apiName in apiNames) {
+    for (final apiName in typeApiNames) {
       final list = await _remote.getPokemonByType(apiName);
       for (final e in list) {
         idToName[e.id] = e.name;
       }
     }
-    final typeTags = displayTypeLabels.map((l) => PokemonTypeTag(label: l)).toList();
+    final typeTags = typeApiNames
+        .map((api) => PokemonTypeTag(
+            label: PokemonTypeLabelMapper.toDisplayLabel(api)))
+        .toList();
     final sortedIds = idToName.keys.toList()..sort();
     return sortedIds.map((id) {
       final name = idToName[id]!;

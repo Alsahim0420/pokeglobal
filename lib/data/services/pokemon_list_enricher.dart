@@ -1,6 +1,6 @@
 import 'package:pokeglobal/core/services/pokemon_type_label_mapper.dart';
 import 'package:pokeglobal/data/datasources/pokemon_remote_datasource.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
 
 /// Enriquece una lista de [PokemonCardItem] con los tipos obtenidos de GET /pokemon/{id}.
 /// Ejecuta las peticiones en paralelo con concurrencia limitada para no saturar la API.

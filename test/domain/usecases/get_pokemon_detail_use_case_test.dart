@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_detail_use_case.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
-import 'package:pokeglobal/models/pokemon_list_result.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_list_result.dart';
 
 void main() {
   group('GetPokemonDetailUseCase', () {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
-import 'package:pokeglobal/widgets/pokemon_header_painter.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_header_painter.dart';
 
 /// Skeleton solo del contenido desde el nombre hacia abajo.
 /// El header (painter + imagen local) se muestra normal; solo la zona de nombre, stats, etc. es skeleton.
@@ -101,7 +101,8 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
             Positioned.fill(
               child: Center(
                 child: Hero(
-                  tag: '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${widget.pokemonName}',
+                  tag:
+                      '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${widget.pokemonName}',
                   child: Material(
                     color: Colors.transparent,
                     child: SizedBox(width: 140, height: 140),
@@ -122,7 +123,8 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
               top: 50,
               right: 16,
               child: Hero(
-                tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.pokemonName}',
+                tag:
+                    '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.pokemonName}',
                 child: Material(
                   color: Colors.transparent,
                   child: IconButton(
@@ -196,15 +198,35 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
           const SizedBox(height: 14),
           Row(
             children: [
-              _ShimmerBox(width: 64, height: 24, borderRadius: 20, isDark: isDark),
+              _ShimmerBox(
+                width: 64,
+                height: 24,
+                borderRadius: 20,
+                isDark: isDark,
+              ),
               const SizedBox(width: 8),
-              _ShimmerBox(width: 64, height: 24, borderRadius: 20, isDark: isDark),
+              _ShimmerBox(
+                width: 64,
+                height: 24,
+                borderRadius: 20,
+                isDark: isDark,
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6, isDark: isDark),
+          _ShimmerBox(
+            width: double.infinity,
+            height: 14,
+            borderRadius: 6,
+            isDark: isDark,
+          ),
           const SizedBox(height: 8),
-          _ShimmerBox(width: double.infinity, height: 14, borderRadius: 6, isDark: isDark),
+          _ShimmerBox(
+            width: double.infinity,
+            height: 14,
+            borderRadius: 6,
+            isDark: isDark,
+          ),
           const SizedBox(height: 8),
           _ShimmerBox(width: 220, height: 14, borderRadius: 6, isDark: isDark),
           const SizedBox(height: 22),
@@ -257,13 +279,28 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
           const SizedBox(height: 20),
           _ShimmerBox(width: 80, height: 12, borderRadius: 4, isDark: isDark),
           const SizedBox(height: 12),
-          _ShimmerBox(width: double.infinity, height: 10, borderRadius: 6, isDark: isDark),
+          _ShimmerBox(
+            width: double.infinity,
+            height: 10,
+            borderRadius: 6,
+            isDark: isDark,
+          ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _ShimmerBox(width: 70, height: 14, borderRadius: 4, isDark: isDark),
-              _ShimmerBox(width: 70, height: 14, borderRadius: 4, isDark: isDark),
+              _ShimmerBox(
+                width: 70,
+                height: 14,
+                borderRadius: 4,
+                isDark: isDark,
+              ),
+              _ShimmerBox(
+                width: 70,
+                height: 14,
+                borderRadius: 4,
+                isDark: isDark,
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -274,7 +311,12 @@ class _PokemonDetailSkeletonState extends State<PokemonDetailSkeleton>
             runSpacing: 8,
             children: List.generate(
               4,
-              (_) => _ShimmerBox(width: 72, height: 28, borderRadius: 20, isDark: isDark),
+              (_) => _ShimmerBox(
+                width: 72,
+                height: 28,
+                borderRadius: 20,
+                isDark: isDark,
+              ),
             ),
           ),
           const SizedBox(height: 32),

@@ -1,7 +1,7 @@
 import 'package:pokeglobal/core/use_case/use_case.dart';
 import 'package:pokeglobal/core/use_case/use_case_response.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
 
 /// Parámetros para enriquecer una lista con tipos.
 class EnrichPokemonListParams {
@@ -25,10 +25,7 @@ class EnrichPokemonListUseCase
       final list = await _repository.enrichPokemonList(params.items);
       return UseCaseResponse.success(list);
     } catch (e) {
-      return UseCaseResponse.failure(
-        e.toString(),
-        error: e,
-      );
+      return UseCaseResponse.failure(e.toString(), error: e);
     }
   }
 }
