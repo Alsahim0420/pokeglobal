@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pokeglobal/core/env/app_env.dart';
 import 'package:pokeglobal/core/services/pokemon_type_label_mapper.dart';
 import 'package:pokeglobal/data/datasources/pokemon_remote_datasource.dart';
 import 'package:pokeglobal/data/mappers/pokemon_detail_mapper.dart';
@@ -11,10 +12,6 @@ import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
 import 'package:pokeglobal/data/models/pokemon_card_item.dart';
 import 'package:pokeglobal/data/models/pokemon_list_result.dart';
-
-/// URL base para sprites oficiales (PokeAPI).
-const String spriteBaseUrl =
-    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork';
 
 /// Implementación del repositorio de Pokémon. Mapea DTOs a entidades de dominio
 /// y enriquece la lista con tipos vía GET /pokemon/{id}.
@@ -69,7 +66,7 @@ class PokemonRepositoryImpl implements PokemonRepository {
         name: displayName,
         nameSlug: name,
         types: typeTags,
-        spriteUrl: '$spriteBaseUrl/$id.png',
+        spriteUrl: '${AppEnv.spriteBaseUrl}/$id.png',
         isFavorite: false,
       );
     }).toList();
@@ -96,7 +93,7 @@ class PokemonRepositoryImpl implements PokemonRepository {
         ? '${name[0].toUpperCase()}${name.substring(1)}'
         : name;
     final number = 'N°${id.toString().padLeft(3, '0')}';
-    final spriteUrl = '$spriteBaseUrl/$id.png';
+    final spriteUrl = '${AppEnv.spriteBaseUrl}/$id.png';
     return PokemonCardItem(
       id: id,
       number: number,

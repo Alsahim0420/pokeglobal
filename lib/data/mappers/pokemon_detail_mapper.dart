@@ -1,12 +1,9 @@
-import 'package:pokeglobal/core/services/pokemon_type_label_mapper.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_weakness.dart';
+import 'package:pokeglobal/core/env/app_env.dart';
+import 'package:pokeglobal/core/services/pokemon_type_label_mapper.dart';
 import 'package:pokeglobal/data/models/pokemon_detail_dto.dart';
 import 'package:pokeglobal/data/models/pokemon_species_dto.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
-
-/// URL base para sprite oficial (detalle).
-const String detailSpriteBaseUrl =
-    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork';
 
 /// Mapea DTOs de API → entidad [PokemonDetail]. Una sola responsabilidad (SRP).
 class PokemonDetailMapper {
@@ -41,7 +38,7 @@ class PokemonDetailMapper {
       genderMalePercent: malePct,
       genderFemalePercent: femalePct,
       weaknessLabels: weaknessLabels,
-      spriteUrl: '$detailSpriteBaseUrl/${dto.id}.png',
+      spriteUrl: '${AppEnv.spriteBaseUrl}/${dto.id}.png',
       nameSlug: dto.name,
     );
   }
