@@ -81,7 +81,9 @@ class PokemonCard extends StatelessWidget {
               onFavoriteTap: onFavoriteTap,
               backgroundColor: rightSectionColor,
               scale: scale,
-              type: typeChips.first.iconPath,
+              type: typeChips.isNotEmpty
+                  ? typeChips.first.iconPath
+                  : PokemonTypeStyle.chipStyle('Normal').iconPath,
             ),
           ],
         ),

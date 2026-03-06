@@ -34,4 +34,17 @@ abstract final class PokemonTypeLabelMapper {
   static List<String> toDisplayLabels(List<String> apiTypeNames) {
     return apiTypeNames.map(toDisplayLabel).toList();
   }
+
+  static final Map<String, String> _displayToApi = {
+    for (final e in _apiToDisplay.entries) e.value: e.key,
+  };
+
+  /// Convierte label de UI (español) a nombre de tipo en la API (inglés).
+  static String? toApiName(String displayLabel) {
+    return _displayToApi[displayLabel];
+  }
+
+  /// Lista de todos los tipos en español para filtros/UI.
+  static List<String> get allDisplayLabels => _apiToDisplay.values.toList()
+    ..sort();
 }

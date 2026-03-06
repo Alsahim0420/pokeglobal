@@ -79,6 +79,29 @@ class PokemonRemoteDatasource {
     return data;
   }
 
+  /// GET /type/{name} — lista de Pokémon de ese tipo (todos).
+  Future<List<({int id, String name})>> getPokemonByType(String apiTypeName) async {
+    final slug = apiTypeName.toLowerCase().trim();
+    final response = await _dio.get<Map<String, dynamic>>('/type/$slug');
+    final data = response.data;
+    if (data == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final list = data['pokemon'] as List<dynamic>? ?? [];
+    return list.map((e) {
+      final pokemon = (e as Map<String, dynamic>)['pokemon'] as Map<String, dynamic>?;
+      final name = pokemon?['name'] as String? ?? '';
+      final url = pokemon?['url'] as String? ?? '';
+      final segments = url.replaceFirst(RegExp(r'/$'), '').split('/');
+      final id = int.tryParse(segments.isNotEmpty ? segments.last : '') ?? 0;
+      return (id: id, name: name);
+    }).where((e) => e.id > 0).toList();
+  }
+
   /// GET /pokemon-species/{id} — descripción y género.
   Future<PokemonSpeciesDto> getPokemonSpecies(int id) async {
     final response = await _dio.get<Map<String, dynamic>>('/pokemon-species/$id');
