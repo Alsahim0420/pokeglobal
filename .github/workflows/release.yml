@@ -1,5 +1,6 @@
-# En cada push a una rama que empiece por "release": ejecuta tests, genera APK,
-# crea una Release en GitHub y adjunta el APK (visible en la pestaña Releases).
+# Se ejecuta:
+# 1) Al hacer push a una rama que empiece por "release" (ej. release, release/1.0)
+# 2) Manualmente desde Actions → "Release — Tests + APK + GitHub Release" → Run workflow
 
 name: Release — Tests + APK + GitHub Release
 
@@ -7,6 +8,7 @@ on:
   push:
     branches:
       - 'release*'
+  workflow_dispatch:
 
 permissions:
   contents: write  # Necesario para crear la Release y subir el APK
