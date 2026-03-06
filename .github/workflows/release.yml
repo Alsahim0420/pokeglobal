@@ -1,0 +1,78 @@
+# En cada push a una rama que empiece por "release": ejecuta tests, genera APK,
+# crea una Release en GitHub y adjunta el APK (visible en la pestaña Releases).
+
+name: Release — Tests + APK + GitHub Release
+
+on:
+  push:
+    branches:
+      - 'release*'
+
+permissions:
+  contents: write  # Necesario para crear la Release y subir el APK
+
+jobs:
+  test-and-build:
+    name: Tests, build APK y publicar Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java (Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Verificar Flutter
+        run: flutter --version
+
+      - name: Crear .env para el build
+        run: |
+          echo "POKEAPI_BASE_URL=https://pokeapi.co/api/v2" >> .env
+          echo "SPRITE_BASE_URL=https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork" >> .env
+
+      - name: Obtener dependencias
+        run: flutter pub get
+
+      - name: Ejecutar pruebas
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Obtener versión del pubspec
+        id: version
+        run: |
+          V=$(grep '^version:' pubspec.yaml | sed -E 's/version: *([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "version=$V" >> $GITHUB_OUTPUT
+          echo "Tag: v$V"
+
+      - name: Crear Release en GitHub y adjuntar APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            APK generado automáticamente al hacer push a una rama `release*`.
+            - Tests: ✅
+            - Build: Release APK
+          files: build/app/outputs/flutter-apk/app-release.apk
+          draft: false
+          replace_existing: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Subir APK como artefacto (backup en Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
