@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pokeglobal/core/constants/app_colors.dart';
 
 /// Fila reutilizable para una estadística del detalle (icono, etiqueta, valor en chip).
 /// Usado para Peso, Altura, Categoría, Habilidad.

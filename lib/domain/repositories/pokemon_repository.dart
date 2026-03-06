@@ -1,6 +1,6 @@
+import 'package:pokeglobal/data/models/pokemon_card_item.dart';
+import 'package:pokeglobal/data/models/pokemon_list_result.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
-import 'package:pokeglobal/models/pokemon_list_result.dart';
 
 /// Contrato del repositorio de Pokémon (capa domain).
 abstract interface class PokemonRepository {
@@ -20,5 +20,8 @@ abstract interface class PokemonRepository {
 
   /// Lista de Pokémon que pertenecen a alguno de los tipos indicados (labels en español).
   /// Usa la API /type/{name} para obtener todos los Pokémon de cada tipo.
-  Future<List<PokemonCardItem>> getPokemonListByTypes(List<String> displayTypeLabels);
+  /// [typeApiNames] nombres de tipo de la API (ej. fire, water).
+  Future<List<PokemonCardItem>> getPokemonListByTypes(
+    List<String> typeApiNames,
+  );
 }

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/services/svg_asset_service.dart';
-import 'package:pokeglobal/screens/favoritos_screen.dart';
-import 'package:pokeglobal/screens/perfil_screen.dart';
-import 'package:pokeglobal/screens/pokedex_screen.dart';
-import 'package:pokeglobal/screens/regiones_screen.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
+import 'package:pokeglobal/presentation/screens/favoritos_screen.dart';
+import 'package:pokeglobal/presentation/screens/perfil_screen.dart';
+import 'package:pokeglobal/presentation/screens/pokedex_screen.dart';
+import 'package:pokeglobal/presentation/screens/regiones_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -17,11 +18,11 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
-  static const List<String> _navLabels = [
-    'Pokedex',
-    'Regiones',
-    'Favoritos',
-    'Perfil',
+  static List<String> _navLabels(BuildContext context) => [
+    AppLocalizations.of(context)!.navPokedex,
+    AppLocalizations.of(context)!.navRegiones,
+    AppLocalizations.of(context)!.navFavoritos,
+    AppLocalizations.of(context)!.navPerfil,
   ];
 
   final List<Widget> _screens = const [
@@ -83,7 +84,7 @@ class _MainShellState extends State<MainShell> {
                       ? colorScheme.primary
                       : colorScheme.onSurfaceVariant,
                 ),
-                label: _navLabels[index],
+                label: _navLabels(context)[index],
               ),
             ),
           ),

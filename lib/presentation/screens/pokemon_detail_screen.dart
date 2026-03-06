@@ -3,15 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
+import 'package:pokeglobal/core/l10n/type_label_helper.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_detail_use_case.dart';
 import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_detail_provider.dart';
-import 'package:pokeglobal/widgets/detail_stat_card.dart';
-import 'package:pokeglobal/widgets/gender_ratio_bar.dart';
-import 'package:pokeglobal/widgets/pokemon_detail_skeleton.dart';
-import 'package:pokeglobal/widgets/pokemon_header_painter.dart';
-import 'package:pokeglobal/widgets/type_chip.dart';
+import 'package:pokeglobal/presentation/widgets/detail_stat_card.dart';
+import 'package:pokeglobal/presentation/widgets/gender_ratio_bar.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_detail_skeleton.dart';
+import 'package:pokeglobal/presentation/widgets/pokemon_header_painter.dart';
+import 'package:pokeglobal/presentation/widgets/type_chip.dart';
 
 class PokemonDetailScreen extends ConsumerStatefulWidget {
   const PokemonDetailScreen({
@@ -110,9 +112,9 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: _loadDetail,
-                  child: const Text(
-                    'Reintentar',
-                    style: TextStyle(color: AppColors.white),
+                  child: Text(
+                    AppLocalizations.of(context)!.detailRetry,
+                    style: const TextStyle(color: AppColors.white),
                   ),
                 ),
               ],
@@ -144,7 +146,10 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                 const SizedBox(height: 22),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
+                  child: Divider(
+                    color: colorScheme.outline.withValues(alpha: 0.6),
+                    height: 1,
+                  ),
                 ),
                 const SizedBox(height: 22),
                 _buildStatsGrid(d),
@@ -190,16 +195,17 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
           ? [
               Consumer(
                 builder: (context, ref, _) {
-                  final isFav = ref.watch(favoriteIdsProvider).contains(_detail!.id);
+                  final isFav = ref
+                      .watch(favoriteIdsProvider)
+                      .contains(_detail!.id);
                   return IconButton(
                     icon: Icon(
                       isFav ? Icons.favorite : Icons.favorite_border,
                       color: isFav ? AppColors.redE5 : AppColors.white,
                     ),
-                    onPressed: () => ref.read(favoriteIdsProvider.notifier).toggle(
-                          _detail!.id,
-                          nameSlug: _detail!.nameSlug,
-                        ),
+                    onPressed: () => ref
+                        .read(favoriteIdsProvider.notifier)
+                        .toggle(_detail!.id, nameSlug: _detail!.nameSlug),
                   );
                 },
               ),
@@ -221,7 +227,8 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             child: Center(
               child: d.typeLabels.isNotEmpty
                   ? Hero(
-                      tag: '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${d.nameSlug}',
+                      tag:
+                          '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${d.nameSlug}',
                       child: Material(
                         color: Colors.transparent,
                         child: ShaderMask(
@@ -258,7 +265,8 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             top: 50,
             right: 16,
             child: Hero(
-              tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${d.nameSlug}',
+              tag:
+                  '${widget.heroTagPrefix ?? ""}pokemon-favorite-${d.nameSlug}',
               child: Material(
                 color: Colors.transparent,
                 child: Consumer(
@@ -273,10 +281,9 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                           color: isFav ? AppColors.redE5 : AppColors.white,
                         ),
                       ),
-                      onPressed: () => ref.read(favoriteIdsProvider.notifier).toggle(
-                            d.id,
-                            nameSlug: d.nameSlug,
-                          ),
+                      onPressed: () => ref
+                          .read(favoriteIdsProvider.notifier)
+                          .toggle(d.id, nameSlug: d.nameSlug),
                     );
                   },
                 ),
@@ -348,7 +355,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             children: d.typeLabels.map((label) {
               final style = PokemonTypeStyle.chipStyle(label);
               return TypeChip(
-                label: label,
+                label: displayLabelInLocale(context, label),
                 color: style.color,
                 iconPath: style.iconPath,
                 scale: 1.0,
@@ -385,13 +392,13 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
               children: [
                 DetailStatCard(
                   iconPath: 'assets/svgs/la_weight-hanging.svg',
-                  label: 'PESO',
+                  label: AppLocalizations.of(context)!.detailWeight,
                   value: '${d.weightKg.toStringAsFixed(1)} kg',
                 ),
                 const SizedBox(height: 20),
                 DetailStatCard(
                   iconPath: 'assets/svgs/bx_category.svg',
-                  label: 'CATEGORÍA',
+                  label: AppLocalizations.of(context)!.detailCategory,
                   value: d.category,
                 ),
               ],
@@ -403,13 +410,13 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
               children: [
                 DetailStatCard(
                   iconPath: 'assets/svgs/ant-design_column-height-outlined.svg',
-                  label: 'ALTURA',
+                  label: AppLocalizations.of(context)!.detailHeight,
                   value: '${d.heightM.toStringAsFixed(1)} m',
                 ),
                 const SizedBox(height: 20),
                 DetailStatCard(
                   iconPath: 'assets/svgs/iconoir_pokeball.svg',
-                  label: 'HABILIDAD',
+                  label: AppLocalizations.of(context)!.detailAbility,
                   value: d.ability.isNotEmpty ? d.ability : '—',
                 ),
               ],
@@ -428,7 +435,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Debilidades',
+            AppLocalizations.of(context)!.detailWeaknesses,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -442,7 +449,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             children: labels.map((label) {
               final style = PokemonTypeStyle.chipStyle(label);
               return TypeChip(
-                label: label,
+                label: displayLabelInLocale(context, label),
                 color: style.color,
                 iconPath: style.iconPath,
                 scale: 1.0,

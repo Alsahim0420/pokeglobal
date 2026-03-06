@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pokeglobal/core/constants/app_colors.dart';
 
 /// Card reutilizable para una estadística del detalle (icono SVG + label, valor en contenedor).
 /// Usado para Peso, Altura, Categoría, Habilidad.

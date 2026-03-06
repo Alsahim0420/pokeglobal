@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokeglobal/core/constants/app_colors.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
 
 class RegionesScreen extends StatelessWidget {
   const RegionesScreen({super.key});
@@ -29,7 +29,7 @@ class RegionesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  '¡Muy pronto disponible!',
+                  AppLocalizations.of(context)!.regionsComingSoon,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: colorScheme.onSurface,
@@ -39,7 +39,7 @@ class RegionesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Estamos trabajando para traerte esta sección. Vuelve más adelante para descubrir todas las novedades.',
+                  AppLocalizations.of(context)!.regionsDescription,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,

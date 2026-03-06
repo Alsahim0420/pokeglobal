@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
-import 'package:pokeglobal/screens/main_shell.dart';
-import 'package:pokeglobal/widgets/primary_button.dart';
+import 'package:pokeglobal/gen/l10n/app_localizations.dart';
+import 'package:pokeglobal/presentation/screens/main_shell.dart';
+import 'package:pokeglobal/presentation/widgets/primary_button.dart';
 
 /// Rutas de las imágenes PNG del onboarding (assets/images/).
 const String _onboarding1 = 'assets/images/onboarding_1.png';
@@ -18,27 +19,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<_OnboardingPage> _pages = const [
-    _OnboardingPage(
-      imageAsset: _onboarding1,
-      title: 'Todos los Pokémon en un solo lugar',
-      subtitle:
-          'Accede a una amplia lista de Pokémon de todas las generaciones creadas por Nintendo',
-    ),
-    _OnboardingPage(
-      imageAsset: _onboarding2,
-      title: 'Mantén tu Pokédex actualizada',
-      subtitle:
-          'Regístrate y guarda tu perfil, Pokémon favoritos, configuraciones y mucho más en la aplicación',
-    ),
-  ];
+  List<_OnboardingPage> _pages(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      _OnboardingPage(
+        imageAsset: _onboarding1,
+        title: l10n.onboardingTitle1,
+        subtitle: l10n.onboardingSubtitle1,
+      ),
+      _OnboardingPage(
+        imageAsset: _onboarding2,
+        title: l10n.onboardingTitle2,
+        subtitle: l10n.onboardingSubtitle2,
+      ),
+    ];
+  }
 
   void _onPageChanged(int index) {
     setState(() => _currentPage = index);
   }
 
   void _nextOrFinish() {
-    if (_currentPage < _pages.length - 1) {
+    final pages = _pages(context);
+    if (_currentPage < pages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -67,9 +70,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _pageController,
                 onPageChanged: _onPageChanged,
-                itemCount: _pages.length,
+                itemCount: _pages(context).length,
                 itemBuilder: (context, index) {
-                  final page = _pages[index];
+                  final page = _pages(context)[index];
                   return _OnboardingPageView(
                     imageAsset: page.imageAsset,
                     title: page.title,
@@ -81,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 12),
               child: _PageIndicator(
-                count: _pages.length,
+                count: _pages(context).length,
                 currentIndex: _currentPage,
                 activeColor: AppColors.blue173,
               ),
@@ -103,9 +106,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   child: Text(
-                    _currentPage == _pages.length - 1
-                        ? 'Empecemos'
-                        : 'Continuar',
+                    _currentPage == _pages(context).length - 1
+                        ? AppLocalizations.of(context)!.onboardingStart
+                        : AppLocalizations.of(context)!.onboardingContinue,
                     key: ValueKey(_currentPage),
                     style: const TextStyle(
                       fontSize: 17,
