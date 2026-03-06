@@ -41,6 +41,12 @@ dependencies:
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
 
+  # Almacenamiento local (favoritos)
+  hive_flutter: ^1.1.0
+
+  # Deslizar para revelar acción (eliminar favorito)
+  flutter_slidable: ^3.1.1
+
   # Inmutabilidad y unions (Freezed)
   freezed_annotation: ^2.4.1
 
@@ -69,6 +75,7 @@ flutter:
   assets:
     - assets/images/
     - assets/svgs/
+    - assets/svgs/Interface, Essential/
     - assets/pokemon/
 
   # An image asset can refer to one or more resolution-specific "variants", see

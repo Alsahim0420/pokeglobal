@@ -5,6 +5,7 @@ import 'package:pokeglobal/core/constants/app_colors.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
 import 'package:pokeglobal/domain/entities/pokemon_detail.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_detail_use_case.dart';
+import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_detail_provider.dart';
 import 'package:pokeglobal/widgets/detail_stat_card.dart';
 import 'package:pokeglobal/widgets/gender_ratio_bar.dart';
@@ -38,7 +39,6 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
   PokemonDetail? _detail;
   bool _loading = true;
   String? _errorMessage;
-  bool _isFavorite = false;
 
   @override
   void initState() {
@@ -180,14 +180,22 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
         icon: const Icon(Icons.chevron_left, color: AppColors.white),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      actions: showActions
+      actions: showActions && _detail != null
           ? [
-              IconButton(
-                icon: Icon(
-                  _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? AppColors.redE5 : AppColors.white,
-                ),
-                onPressed: () => setState(() => _isFavorite = !_isFavorite),
+              Consumer(
+                builder: (context, ref, _) {
+                  final isFav = ref.watch(favoriteIdsProvider).contains(_detail!.id);
+                  return IconButton(
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? AppColors.redE5 : AppColors.white,
+                    ),
+                    onPressed: () => ref.read(favoriteIdsProvider.notifier).toggle(
+                          _detail!.id,
+                          nameSlug: _detail!.nameSlug,
+                        ),
+                  );
+                },
               ),
             ]
           : null,
@@ -247,16 +255,24 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
               tag: 'pokemon-favorite-${d.nameSlug}',
               child: Material(
                 color: Colors.transparent,
-                child: IconButton(
-                  icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      key: ValueKey<bool>(_isFavorite),
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite ? AppColors.redE5 : AppColors.white,
-                    ),
-                  ),
-                  onPressed: () => setState(() => _isFavorite = !_isFavorite),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final isFav = ref.watch(favoriteIdsProvider).contains(d.id);
+                    return IconButton(
+                      icon: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          key: ValueKey<bool>(isFav),
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? AppColors.redE5 : AppColors.white,
+                        ),
+                      ),
+                      onPressed: () => ref.read(favoriteIdsProvider.notifier).toggle(
+                            d.id,
+                            nameSlug: d.nameSlug,
+                          ),
+                    );
+                  },
                 ),
               ),
             ),

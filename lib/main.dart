@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pokeglobal/presentation/providers/favorites_provider.dart';
 import 'package:pokeglobal/screens/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initFavoritesStorage();
   runApp(const ProviderScope(child: PokeGlobalApp()));
 }
 
