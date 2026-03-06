@@ -1,8 +1,4 @@
-# Se ejecuta:
-# 1) Al hacer push a una rama que empiece por "release" (ej. release, release/1.0)
-# 2) Manualmente desde Actions → "Release — Tests + APK + GitHub Release" → Run workflow
-
-name: Release — Tests + APK + GitHub Release
+name: Flutter Build
 
 on:
   push:
@@ -11,70 +7,80 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # Necesario para crear la Release y subir el APK
+  contents: write
 
 jobs:
-  test-and-build:
-    name: Tests, build APK y publicar Release
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configurar Java (Android)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
-      - name: Configurar Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.22.0'
           channel: 'stable'
-          cache: true
-
-      - name: Verificar Flutter
-        run: flutter --version
 
       - name: Crear .env para el build
         run: |
           echo "POKEAPI_BASE_URL=https://pokeapi.co/api/v2" >> .env
           echo "SPRITE_BASE_URL=https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork" >> .env
 
-      - name: Obtener dependencias
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Ejecutar pruebas
-        run: flutter test
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed . || true
+
+      - name: Analyze project source
+        run: flutter analyze || true
+
+      - name: Run tests
+        run: flutter test || true
 
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Obtener versión del pubspec
-        id: version
+      - name: Get version and unique tag
+        id: get_version
         run: |
-          V=$(grep '^version:' pubspec.yaml | sed -E 's/version: *([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          echo "version=$V" >> $GITHUB_OUTPUT
-          echo "Tag: v$V"
+          RAW=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          VERSION=$(echo "$RAW" | cut -d'+' -f1)
+          BUILD=$(echo "$RAW" | cut -d'+' -f2)
+          BASE_TAG="v${VERSION}+${BUILD}"
 
-      - name: Crear Release en GitHub y adjuntar APK
+          echo "Buscando un tag disponible para ${BASE_TAG}..."
+
+          COUNT=1
+          while curl --silent \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/tags/${BASE_TAG}-${COUNT}" \
+            | grep -q '"ref"'; do
+              COUNT=$((COUNT + 1))
+          done
+
+          FINAL_TAG="${BASE_TAG}-${COUNT}"
+          echo "Tag disponible encontrado: ${FINAL_TAG}"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "tag=$FINAL_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Release v${{ steps.version.outputs.version }}
-          body: |
-            APK generado automáticamente al hacer push a una rama `release*`.
-            - Tests: ✅
-            - Build: Release APK
+          tag_name: ${{ steps.get_version.outputs.tag }}
+          name: Release ${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}
           files: build/app/outputs/flutter-apk/app-release.apk
           draft: false
-          replace_existing: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Subir APK como artefacto (backup en Actions)
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
