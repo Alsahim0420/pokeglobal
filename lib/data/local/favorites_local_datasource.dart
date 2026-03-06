@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pokeglobal/core/storage/key_value_store.dart';
 
 /// Almacenamiento local de favoritos (IDs y slug por id para cargar detalle).
 class FavoritesLocalDatasource {
-  FavoritesLocalDatasource(this._box);
+  FavoritesLocalDatasource(this._store);
 
   static const String _keyIds = 'favorite_ids';
   static const String _keyIdToSlug = 'id_to_slug';
 
-  final Box<dynamic> _box;
+  final KeyValueStore _store;
 
   List<int> getFavoriteIds() {
-    final raw = _box.get(_keyIds);
+    final raw = _store.get(_keyIds);
     if (raw == null) return [];
     try {
       final list = jsonDecode(raw as String) as List<dynamic>;
@@ -24,7 +24,7 @@ class FavoritesLocalDatasource {
 
   /// Mapa id -> nameSlug para cargar detalle en Favoritos.
   Map<int, String> getIdToSlug() {
-    final raw = _box.get(_keyIdToSlug);
+    final raw = _store.get(_keyIdToSlug);
     if (raw == null) return {};
     try {
       final map = jsonDecode(raw as String) as Map<String, dynamic>;
@@ -35,8 +35,8 @@ class FavoritesLocalDatasource {
   }
 
   Future<void> setFavorites(List<int> ids, Map<int, String> idToSlug) async {
-    await _box.put(_keyIds, jsonEncode(ids));
+    await _store.put(_keyIds, jsonEncode(ids));
     final encoded = jsonEncode(idToSlug.map((k, v) => MapEntry(k.toString(), v)));
-    await _box.put(_keyIdToSlug, encoded);
+    await _store.put(_keyIdToSlug, encoded);
   }
 }
