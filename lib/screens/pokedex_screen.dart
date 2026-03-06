@@ -6,6 +6,7 @@ import 'package:pokeglobal/core/utils/responsive.dart';
 import 'package:pokeglobal/models/pokemon_card_item.dart';
 import 'package:pokeglobal/domain/usecases/get_pokemon_list_use_case.dart';
 import 'package:pokeglobal/presentation/providers/pokemon_list_provider.dart';
+import 'package:pokeglobal/screens/pokemon_detail_screen.dart';
 import 'package:pokeglobal/widgets/primary_button.dart';
 import 'package:pokeglobal/widgets/pokemon_card.dart';
 import 'package:pokeglobal/widgets/pokemon_card_skeleton.dart';
@@ -18,9 +19,14 @@ class PokedexScreen extends ConsumerStatefulWidget {
 }
 
 class _PokedexScreenState extends ConsumerState<PokedexScreen> {
+  static const int _pageSize = 20;
+
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   List<PokemonCardItem> _pokemonList = [];
+  int? _totalCount;
   bool _loading = true;
+  bool _loadingMore = false;
   String? _errorMessage;
   final Set<int> _favoriteIds = {};
 
@@ -28,6 +34,14 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
   void initState() {
     super.initState();
     _loadPokemonList();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_totalCount == null || _loadingMore || _loading) return;
+    if (_pokemonList.length >= _totalCount!) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 400) _loadMore();
   }
 
   Future<void> _loadPokemonList() async {
@@ -38,16 +52,17 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     });
 
     final useCase = ref.read(getPokemonListUseCaseProvider);
-    const params = GetPokemonListParams(limit: 20, offset: 0);
+    const params = GetPokemonListParams(limit: _pageSize, offset: 0);
     final response = await useCase(params);
 
     if (!mounted) return;
     response.when(
-      success: (list) {
+      success: (result) {
         setState(() {
-          _pokemonList = list
+          _pokemonList = result.list
               .map((p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)))
               .toList();
+          _totalCount = result.totalCount;
           _loading = false;
           _errorMessage = null;
         });
@@ -57,6 +72,39 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
           _errorMessage = message;
           _loading = false;
         });
+      },
+    );
+  }
+
+  Future<void> _loadMore() async {
+    if (!mounted || _totalCount == null) return;
+    if (_pokemonList.length >= _totalCount!) return;
+    if (_loadingMore) return;
+    setState(() => _loadingMore = true);
+
+    final useCase = ref.read(getPokemonListUseCaseProvider);
+    final params = GetPokemonListParams(
+      limit: _pageSize,
+      offset: _pokemonList.length,
+    );
+    final response = await useCase(params);
+
+    if (!mounted) return;
+    response.when(
+      success: (result) {
+        setState(() {
+          final merged = [
+            ..._pokemonList,
+            ...result.list.map(
+              (p) => p.copyWith(isFavorite: _favoriteIds.contains(p.id)),
+            ),
+          ];
+          _pokemonList = merged;
+          _loadingMore = false;
+        });
+      },
+      failure: (_, __) {
+        setState(() => _loadingMore = false);
       },
     );
   }
@@ -81,6 +129,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -127,7 +176,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
       );
     }
 
-    if (_errorMessage == null) {
+    if (_errorMessage != null) {
       return KeyedSubtree(
         key: const ValueKey('error'),
         child: _PokedexErrorView(onRetry: _loadPokemonList),
@@ -146,12 +195,32 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
       );
     }
 
+    final itemCount = _pokemonList.length + (_loadingMore ? 1 : 0);
     return KeyedSubtree(
       key: const ValueKey('list'),
       child: ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.symmetric(horizontal: listPadding, vertical: 12),
-        itemCount: _pokemonList.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
+          if (index >= _pokemonList.length) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: itemSpacing),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.grey75,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
           final item = _pokemonList[index];
           return Padding(
             padding: EdgeInsets.only(bottom: itemSpacing),
@@ -166,14 +235,42 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
               gradient: PokemonTypeStyle.cardGradient(
                 item.types.map((t) => t.label).toList(),
               ),
-              rightSectionColor: PokemonTypeStyle.rightSectionColor(
+              rightSectionColor: _strongColorForTypes(
                 item.types.map((t) => t.label).toList(),
+              ),
+              onTap: () => Navigator.of(context).push(
+                PageRouteBuilder<void>(
+                  pageBuilder: (_, __, ___) => PokemonDetailScreen(
+                    pokemonName: item.nameSlug,
+                    initialHeaderColor: _strongColorForTypes(
+                      item.types.map((t) => t.label).toList(),
+                    ),
+                    initialSpriteUrl: item.spriteUrl,
+                  ),
+                  transitionDuration: const Duration(milliseconds: 400),
+                  reverseTransitionDuration: const Duration(milliseconds: 350),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOut,
+                          ),
+                          child: child,
+                        );
+                      },
+                ),
               ),
             ),
           );
         },
       ),
     );
+  }
+
+  static Color _strongColorForTypes(List<String> typeLabels) {
+    if (typeLabels.isEmpty) return AppColors.grey9E;
+    return PokemonTypeStyle.chipStyle(typeLabels.first).color;
   }
 
   static List<TypeChipData> _toTypeChipData(List<PokemonTypeTag> types) {

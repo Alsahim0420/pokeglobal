@@ -11,7 +11,9 @@ abstract final class AppColors {
   static const Color transparentWhite = Color(0x00FFFFFF);
 
   // ─── Grises ───────────────────────────────────────────────────────────────
+  static const Color greyF2 = Color(0xFFF2F2F2);
   static const Color greyE0 = Color(0xFFE0E0E0);
+  static const Color greyDD = Color(0xFFDDDDDD);
   static const Color greyD6 = Color(0xFFD6D6D6);
   static const Color greyEE = Color(0xFFEEEEEE);
   static const Color grey9E = Color(0xFF9E9E9E);
@@ -60,6 +62,10 @@ abstract final class AppColors {
   // ─── Cyan ────────────────────────────────────────────────────────────────
   static const Color cyan00 = Color(0xFF00BCD4);
 
+  // ─── Género (barra ratio macho/hembra) ───────────────────────────────────
+  static const Color genderMale = Color(0xFF2E5CB8);
+  static const Color genderFemale = Color(0xFFE85D7A);
+
   // ─── Negro / texto ───────────────────────────────────────────────────────
   static const Color black = Color(0xFF000000);
   static const Color textDark = Color(0xFF1A1A1A);
@@ -85,5 +91,19 @@ abstract final class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [white, transparentWhite],
+  );
+
+  /// Gradiente lineal (arriba → abajo) para el icono de tipo detrás del Pokémon.
+  /// Arriba menos transparente, abajo más transparente. Card y detalle.
+  static LinearGradient get typeIconBackGradient => LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      white.withOpacity(0.8),
+      white.withOpacity(0.6),
+      white.withOpacity(0.4),
+      white.withOpacity(0.0),
+    ],
+    stops: const [0.0, 0.35, 0.65, 1.0],
   );
 }

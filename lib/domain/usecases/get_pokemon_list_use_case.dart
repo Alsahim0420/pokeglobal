@@ -1,7 +1,7 @@
 import 'package:pokeglobal/core/use_case/use_case.dart';
 import 'package:pokeglobal/core/use_case/use_case_response.dart';
 import 'package:pokeglobal/domain/repositories/pokemon_repository.dart';
-import 'package:pokeglobal/models/pokemon_card_item.dart';
+import 'package:pokeglobal/models/pokemon_list_result.dart';
 
 /// Parámetros para obtener la lista paginada de Pokémon.
 class GetPokemonListParams {
@@ -14,24 +14,24 @@ class GetPokemonListParams {
   final int offset;
 }
 
-/// Caso de uso: obtiene la lista de Pokémon desde PokeAPI.
-/// Devuelve [UseCaseResponse<List<PokemonCardItem>>].
+/// Caso de uso: obtiene la lista paginada de Pokémon desde PokeAPI.
+/// Devuelve [list] y [totalCount] para infinite scroll.
 class GetPokemonListUseCase
-    implements UseCase<List<PokemonCardItem>, GetPokemonListParams> {
+    implements UseCase<PokemonListResult, GetPokemonListParams> {
   GetPokemonListUseCase(this._repository);
 
   final PokemonRepository _repository;
 
   @override
-  Future<UseCaseResponse<List<PokemonCardItem>>> call(
+  Future<UseCaseResponse<PokemonListResult>> call(
     GetPokemonListParams params,
   ) async {
     try {
-      final list = await _repository.getPokemonList(
+      final result = await _repository.getPokemonList(
         limit: params.limit,
         offset: params.offset,
       );
-      return UseCaseResponse.success(list);
+      return UseCaseResponse.success(result);
     } catch (e) {
       return UseCaseResponse.failure(
         e.toString(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pokeglobal/core/constants/app_colors.dart';
-import 'package:pokeglobal/core/constants/pokemon_assets.dart';
 import 'package:pokeglobal/core/constants/pokemon_type_style.dart';
 import 'package:pokeglobal/core/utils/responsive.dart';
 import 'package:pokeglobal/widgets/type_chip.dart';
@@ -32,6 +31,7 @@ class PokemonCard extends StatelessWidget {
     required this.onFavoriteTap,
     required this.gradient,
     required this.rightSectionColor,
+    this.onTap,
   });
 
   final String number;
@@ -39,12 +39,15 @@ class PokemonCard extends StatelessWidget {
   final List<TypeChipData> typeChips;
   final String spriteUrl;
 
-  /// Nombre en minúsculas (slug) para SVG local; si hay asset, se usa en lugar de [spriteUrl].
+  /// Nombre en minúsculas (slug) para Hero tags y referencias.
   final String? nameSlug;
   final bool isFavorite;
   final VoidCallback onFavoriteTap;
   final LinearGradient gradient;
   final Color rightSectionColor;
+
+  /// Tap simple (ej. navegar al detalle). Doble tap sigue siendo [onFavoriteTap].
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +56,7 @@ class PokemonCard extends StatelessWidget {
     final scale = Responsive.cardScale(width);
 
     return GestureDetector(
+      onTap: onTap,
       onDoubleTap: onFavoriteTap,
       child: Container(
         height: height,
@@ -116,7 +120,7 @@ class _LeftContent extends StatelessWidget {
               style: TextStyle(
                 color: AppColors.textTertiary,
                 fontSize: (11 * scale).roundToDouble(),
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(height: 2 * scale),
@@ -124,7 +128,7 @@ class _LeftContent extends StatelessWidget {
               name,
               style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: (18 * scale).roundToDouble(),
+                fontSize: (25 * scale).roundToDouble(),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -172,8 +176,8 @@ class _RightSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = 6 * scale;
-    final imageSize = 100 * scale;
-    final fallbackIconSize = 44 * scale;
+    final imageSize = 58 * scale;
+    final fallbackIconSize = 28 * scale;
 
     return Expanded(
       flex: 2,
@@ -187,19 +191,40 @@ class _RightSection extends StatelessWidget {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: SvgPicture.asset(
-                  type,
-                  color: AppColors.white.withOpacity(0.2),
+                child: Hero(
+                  tag: 'pokemon-type-icon-${nameSlug ?? ""}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: ShaderMask(
+                      blendMode: BlendMode.dstIn,
+                      shaderCallback: (bounds) =>
+                          AppColors.typeIconBackGradient.createShader(bounds),
+                      child: SvgPicture.asset(
+                        type,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Align(
                 alignment: Alignment.center,
-                child: _buildSprite(imageSize, fallbackIconSize),
+                child: Hero(
+                  tag: 'pokemon-image-${nameSlug ?? ""}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: _buildSprite(imageSize, fallbackIconSize),
+                  ),
+                ),
               ),
               Positioned(
                 top: padding,
                 right: padding,
                 child: _FavoriteButton(
+                  nameSlug: nameSlug,
                   isFavorite: isFavorite,
                   onTap: onFavoriteTap,
                   scale: scale,
@@ -213,39 +238,29 @@ class _RightSection extends StatelessWidget {
   }
 
   Widget _buildSprite(double imageSize, double fallbackIconSize) {
-    final slug = nameSlug?.toLowerCase().trim();
-    final path = slug != null && slug.isNotEmpty
-        ? PokemonAssets.path(slug)
-        : null;
-
-    if (path != null) {
-      return Image.asset(
-        path,
-        width: imageSize,
-        height: imageSize,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => Icon(
-          Icons.catching_pokemon,
-          size: fallbackIconSize,
-          color: AppColors.white,
-        ),
-      );
-    }
-    return Icon(
-      Icons.catching_pokemon,
-      size: fallbackIconSize,
-      color: AppColors.white,
+    return Image.network(
+      spriteUrl,
+      width: imageSize,
+      height: imageSize,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Icon(
+        Icons.catching_pokemon,
+        size: fallbackIconSize,
+        color: AppColors.white,
+      ),
     );
   }
 }
 
 class _FavoriteButton extends StatelessWidget {
   const _FavoriteButton({
+    required this.nameSlug,
     required this.isFavorite,
     required this.onTap,
     required this.scale,
   });
 
+  final String? nameSlug;
   final bool isFavorite;
   final VoidCallback onTap;
   final double scale;
@@ -255,26 +270,33 @@ class _FavoriteButton extends StatelessWidget {
     final size = 30 * scale;
     final iconSize = 16 * scale;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.grey42.withOpacity(0.4),
-            border: Border.all(
-              color: AppColors.white,
-              width: (1.5 * scale).clamp(1.0, 2.0),
+    return Hero(
+      tag: 'pokemon-favorite-${nameSlug ?? ""}',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.grey42.withOpacity(0.4),
+              border: Border.all(
+                color: AppColors.white,
+                width: (1.5 * scale).clamp(1.0, 2.0),
+              ),
             ),
-          ),
-          child: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? AppColors.redE5 : AppColors.white,
-            size: iconSize,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                key: ValueKey<bool>(isFavorite),
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? AppColors.redE5 : AppColors.white,
+                size: iconSize,
+              ),
+            ),
           ),
         ),
       ),
