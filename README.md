@@ -4,6 +4,8 @@
 
 **PokéGlobal** es una aplicación móvil desarrollada en Flutter para explorar la Pokédex, ver detalles de Pokémon, filtrar por tipo y gestionar favoritos. Consume [PokeAPI](https://pokeapi.co/) y persiste favoritos en local.
 
+El banner de portada y el icono de la app fueron creados con IA, concretamente con **Gemini (nano banana)**.
+
 
 ---
 
@@ -133,6 +135,7 @@ Con esto se facilita testing (mockeando repositorios), cambios de API o de almac
 ## Uso de IA en el proyecto
 
 - **Herramienta:** se ha utilizado **Cursor** (y asistentes basados en IA) como apoyo durante el desarrollo.
+- **Imágenes (banner e icono):** el banner de portada y el icono de la app se generaron con **Gemini (nano banana)**.
 - **Cómo se usa:**  
   - Generación y refactor de código (por ejemplo, providers Riverpod, mappers, manejo de `.env`).  
   - Revisión de seguridad (HTTPS, no exponer claves en logs, uso de `.env`).  
