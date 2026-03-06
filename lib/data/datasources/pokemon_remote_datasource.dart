@@ -1,17 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pokeglobal/core/env/app_env.dart';
+import 'package:pokeglobal/core/security/secure_config.dart';
 import 'package:pokeglobal/data/models/pokemon_detail_dto.dart';
 import 'package:pokeglobal/data/models/pokemon_list_response_dto.dart';
 import 'package:pokeglobal/data/models/pokemon_species_dto.dart';
 
-/// Base URL de PokeAPI v2.
-const String pokeApiBaseUrl = 'https://pokeapi.co/api/v2';
-
 /// Dio configurado solo para PokeAPI (evita mutar el Dio global).
+/// BaseUrl y validación HTTPS desde [AppEnv]. Logs solo en debug.
 final pokeApiDioProvider = Provider<Dio>((ref) {
-  return Dio(
+  final baseUrl = ensureHttps(AppEnv.pokeApiBaseUrl);
+  final dio = Dio(
     BaseOptions(
-      baseUrl: pokeApiBaseUrl,
+      baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
       headers: <String, dynamic>{
@@ -20,6 +22,15 @@ final pokeApiDioProvider = Provider<Dio>((ref) {
       },
     ),
   );
+  // Logs solo en debug para no exponer datos en release
+  if (kDebugMode) {
+    dio.interceptors.add(LogInterceptor(
+      requestBody: false,
+      responseBody: false,
+      error: true,
+    ));
+  }
+  return dio;
 });
 
 /// Datasource remoto de Pokémon (PokeAPI). Solo conoce HTTP y DTOs.
