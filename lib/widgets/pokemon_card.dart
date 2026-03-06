@@ -27,6 +27,7 @@ class PokemonCard extends StatelessWidget {
     required this.typeChips,
     required this.spriteUrl,
     this.nameSlug,
+    this.heroTagPrefix,
     required this.isFavorite,
     required this.onFavoriteTap,
     required this.gradient,
@@ -41,6 +42,9 @@ class PokemonCard extends StatelessWidget {
 
   /// Nombre en minúsculas (slug) para Hero tags y referencias.
   final String? nameSlug;
+
+  /// Prefijo opcional para los Hero tags (evita duplicados cuando la misma card aparece en varias listas, ej. 'fav-').
+  final String? heroTagPrefix;
   final bool isFavorite;
   final VoidCallback onFavoriteTap;
   final LinearGradient gradient;
@@ -77,6 +81,7 @@ class PokemonCard extends StatelessWidget {
             _RightSection(
               spriteUrl: spriteUrl,
               nameSlug: nameSlug,
+              heroTagPrefix: heroTagPrefix,
               isFavorite: isFavorite,
               onFavoriteTap: onFavoriteTap,
               backgroundColor: rightSectionColor,
@@ -160,6 +165,7 @@ class _RightSection extends StatelessWidget {
   const _RightSection({
     required this.spriteUrl,
     this.nameSlug,
+    this.heroTagPrefix,
     required this.isFavorite,
     required this.onFavoriteTap,
     required this.backgroundColor,
@@ -169,6 +175,7 @@ class _RightSection extends StatelessWidget {
 
   final String spriteUrl;
   final String? nameSlug;
+  final String? heroTagPrefix;
   final bool isFavorite;
   final VoidCallback onFavoriteTap;
   final Color backgroundColor;
@@ -194,7 +201,7 @@ class _RightSection extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Hero(
-                  tag: 'pokemon-type-icon-${nameSlug ?? ""}',
+                  tag: '${heroTagPrefix ?? ""}pokemon-type-icon-${nameSlug ?? ""}',
                   child: Material(
                     color: Colors.transparent,
                     child: ShaderMask(
@@ -215,7 +222,7 @@ class _RightSection extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Hero(
-                  tag: 'pokemon-image-${nameSlug ?? ""}',
+                  tag: '${heroTagPrefix ?? ""}pokemon-image-${nameSlug ?? ""}',
                   child: Material(
                     color: Colors.transparent,
                     child: _buildSprite(imageSize, fallbackIconSize),
@@ -227,6 +234,7 @@ class _RightSection extends StatelessWidget {
                 right: padding,
                 child: _FavoriteButton(
                   nameSlug: nameSlug,
+                  heroTagPrefix: heroTagPrefix,
                   isFavorite: isFavorite,
                   onTap: onFavoriteTap,
                   scale: scale,
@@ -254,30 +262,73 @@ class _RightSection extends StatelessWidget {
   }
 }
 
-class _FavoriteButton extends StatelessWidget {
+class _FavoriteButton extends StatefulWidget {
   const _FavoriteButton({
     required this.nameSlug,
+    this.heroTagPrefix,
     required this.isFavorite,
     required this.onTap,
     required this.scale,
   });
 
   final String? nameSlug;
+  final String? heroTagPrefix;
   final bool isFavorite;
   final VoidCallback onTap;
   final double scale;
 
   @override
+  State<_FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<_FavoriteButton>
+    with SingleTickerProviderStateMixin {
+  static const Duration _heartbeatDuration = Duration(milliseconds: 380);
+  late AnimationController _heartbeatController;
+  late Animation<double> _heartbeatScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartbeatController = AnimationController(
+      vsync: this,
+      duration: _heartbeatDuration,
+    );
+    _heartbeatScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 15),
+      TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 15),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 15),
+    ]).animate(
+      CurvedAnimation(parent: _heartbeatController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void didUpdateWidget(_FavoriteButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isFavorite && widget.isFavorite) {
+      _heartbeatController.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _heartbeatController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final size = 30 * scale;
-    final iconSize = 16 * scale;
+    final size = 30 * widget.scale;
+    final iconSize = 16 * widget.scale;
 
     return Hero(
-      tag: 'pokemon-favorite-${nameSlug ?? ""}',
+      tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${widget.nameSlug ?? ""}',
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: widget.onTap,
           customBorder: const CircleBorder(),
           child: Container(
             width: size,
@@ -287,16 +338,31 @@ class _FavoriteButton extends StatelessWidget {
               color: AppColors.grey42.withOpacity(0.4),
               border: Border.all(
                 color: AppColors.white,
-                width: (1.5 * scale).clamp(1.0, 2.0),
+                width: (1.5 * widget.scale).clamp(1.0, 2.0),
               ),
             ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                key: ValueKey<bool>(isFavorite),
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? AppColors.redE5 : AppColors.white,
-                size: iconSize,
+            child: AnimatedBuilder(
+              animation: _heartbeatScale,
+              builder: (context, child) {
+                final s =
+                    widget.isFavorite && _heartbeatController.isAnimating
+                        ? _heartbeatScale.value
+                        : 1.0;
+                return Transform.scale(
+                  scale: s,
+                  alignment: Alignment.center,
+                  child: child,
+                );
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  key: ValueKey<bool>(widget.isFavorite),
+                  widget.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color:
+                      widget.isFavorite ? AppColors.redE5 : AppColors.white,
+                  size: iconSize,
+                ),
               ),
             ),
           ),

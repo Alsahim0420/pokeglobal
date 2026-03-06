@@ -59,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -160,10 +160,10 @@ class _OnboardingPageView extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.25,
             ),
           ),
@@ -173,7 +173,7 @@ class _OnboardingPageView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
-              color: AppColors.grey42,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1.4,
             ),
           ),

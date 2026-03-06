@@ -19,6 +19,7 @@ class PokemonDetailScreen extends ConsumerStatefulWidget {
     required this.pokemonName,
     this.initialHeaderColor,
     this.initialSpriteUrl,
+    this.heroTagPrefix,
   });
 
   /// Nombre o slug del Pokémon (ej. "bulbasaur") para la API.
@@ -29,6 +30,9 @@ class PokemonDetailScreen extends ConsumerStatefulWidget {
 
   /// URL del sprite para mostrar en el skeleton mientras carga (desde la lista).
   final String? initialSpriteUrl;
+
+  /// Prefijo para Hero tags (debe coincidir con la lista de origen, ej. 'fav-' desde Favoritos).
+  final String? heroTagPrefix;
 
   @override
   ConsumerState<PokemonDetailScreen> createState() =>
@@ -84,6 +88,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
         pokemonName: widget.pokemonName,
         headerColor: widget.initialHeaderColor,
         spriteUrl: widget.initialSpriteUrl,
+        heroTagPrefix: widget.heroTagPrefix,
       );
     }
 
@@ -122,8 +127,9 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
         ? PokemonTypeStyle.chipStyle(d.typeLabels.first).color
         : AppColors.green8B;
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -215,7 +221,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             child: Center(
               child: d.typeLabels.isNotEmpty
                   ? Hero(
-                      tag: 'pokemon-type-icon-${d.nameSlug}',
+                      tag: '${widget.heroTagPrefix ?? ""}pokemon-type-icon-${d.nameSlug}',
                       child: Material(
                         color: Colors.transparent,
                         child: ShaderMask(
@@ -252,7 +258,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             top: 50,
             right: 16,
             child: Hero(
-              tag: 'pokemon-favorite-${d.nameSlug}',
+              tag: '${widget.heroTagPrefix ?? ""}pokemon-favorite-${d.nameSlug}',
               child: Material(
                 color: Colors.transparent,
                 child: Consumer(
@@ -283,7 +289,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             right: 0,
             child: Center(
               child: Hero(
-                tag: 'pokemon-image-${d.nameSlug}',
+                tag: '${widget.heroTagPrefix ?? ""}pokemon-image-${d.nameSlug}',
                 child: _buildHeaderSprite(d),
               ),
             ),
@@ -316,6 +322,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
   }
 
   Widget _buildTitleSection(PokemonDetail d) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -323,16 +330,16 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
         children: [
           Text(
             d.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             d.number,
-            style: const TextStyle(fontSize: 16, color: AppColors.textDark),
+            style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -358,9 +365,9 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
-          color: AppColors.textSecondary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           height: 1.4,
         ),
       ),
@@ -420,12 +427,12 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Debilidades',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),

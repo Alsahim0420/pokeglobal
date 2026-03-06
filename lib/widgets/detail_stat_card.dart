@@ -18,6 +18,7 @@ class DetailStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,18 +29,18 @@ class DetailStatCard extends StatelessWidget {
               width: 16,
               height: 16,
               colorFilter: ColorFilter.mode(
-                AppColors.textSecondary,
+                colorScheme.onSurfaceVariant,
                 BlendMode.srcIn,
               ),
             ),
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -49,17 +50,17 @@ class DetailStatCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: AppColors.transparentWhite,
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.greyDD, width: 1),
+            border: Border.all(color: colorScheme.outline, width: 1),
           ),
           child: Center(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textDark,
+                color: colorScheme.onSurface,
               ),
             ),
           ),

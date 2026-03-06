@@ -331,7 +331,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen> {
     final itemSpacing = Responsive.listItemSpacing(width);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

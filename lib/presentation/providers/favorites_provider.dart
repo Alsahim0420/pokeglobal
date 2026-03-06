@@ -4,10 +4,11 @@ import 'package:pokeglobal/data/local/favorites_local_datasource.dart';
 
 const String _favoritesBoxName = 'favorites';
 
-/// Inicializa Hive y abre la caja de favoritos. Llamar desde main() antes de runApp.
+/// Inicializa Hive y abre las cajas de favoritos y configuración. Llamar desde main() antes de runApp.
 Future<void> initFavoritesStorage() async {
   await Hive.initFlutter();
   await Hive.openBox<dynamic>(_favoritesBoxName);
+  await Hive.openBox<dynamic>('settings');
 }
 
 /// Caja de favoritos (debe estar abierta en main con [initFavoritesStorage]).
